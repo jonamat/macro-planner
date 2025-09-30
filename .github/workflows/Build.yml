@@ -1,0 +1,59 @@
+name: "[production] Build and Push Docker Image"
+
+on:
+  push:
+    branches:
+      - 'master'
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE: jonamat/macro-planner 
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    env:
+      CI_DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      CI_DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CI_MASTER_WEBHOOK: ${{ secrets.MASTER_WEBHOOK }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run tests
+        run: yarn test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.CI_DOCKERHUB_USERNAME }}
+          password: ${{ env.CI_DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:latest
+            ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+
+      - name: Notify master webhook
+        env:
+          WEBHOOK_URL: ${{ env.CI_MASTER_WEBHOOK }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          payload=$(printf '{"status":"%s","sha":"%s","ref":"%s"}' "$JOB_STATUS" "$GITHUB_SHA" "$GITHUB_REF")
+          curl -sS -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || echo "Webhook notification failed"

@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(uuid())
+  username     String       @unique
+  passwordHash String
+  ingredients  Ingredient[]
+  meals        Meal[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Ingredient {
+  id           String   @id @default(uuid())
+  name         String
+  sequence     Int      @default(0)
+  min          Float?
+  max          Float?
+  mandatory    Float?
+  indivisible  Float?
+  carbo100g    Float
+  protein100g  Float
+  fat100g      Float
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Meal {
+  id            String   @id @default(uuid())
+  name          String
+  targetCarbo   Float
+  targetProtein Float
+  targetFat     Float
+  userId        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

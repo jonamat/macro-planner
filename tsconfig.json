@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es2021",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["es2021"],
+    "types": ["node"],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true
+  }
+}

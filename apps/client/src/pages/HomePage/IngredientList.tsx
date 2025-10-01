@@ -7,6 +7,12 @@ import type { ClientIngredient, IngredientField } from './types';
 
 const Label = chakra('label');
 const CheckboxInput = chakra('input');
+const SuggestionButton = chakra('button');
+const truncateStyles = {
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis'
+} as const;
 const PencilIcon = (props: IconProps) => (
   <chakra.svg viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em" {...props}>
     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.83H5v-.92l9.06-9.06.92.92-9.06 9.06ZM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82Z" />
@@ -210,8 +216,7 @@ export function IngredientList({
               suggestions.map((ingredient, index) => {
                 const isHighlighted = index === highlightedIndex;
                 return (
-                  <Box
-                    as="button"
+                  <SuggestionButton
                     key={ingredient.id}
                     type="button"
                     role="option"
@@ -228,11 +233,13 @@ export function IngredientList({
                     }}
                     onMouseEnter={() => setHighlightedIndex(index)}
                   >
-                    <Text fontWeight="semibold">{ingredient.name}</Text>
+                    <Text fontWeight="semibold" style={truncateStyles}>
+                      {ingredient.name}
+                    </Text>
                     <Text fontSize="xs" color="gray.500">
                       {ingredient.carbo100g}g carbs • {ingredient.protein100g}g protein • {ingredient.fat100g}g fat
                     </Text>
-                  </Box>
+                  </SuggestionButton>
                 );
               })
             )}
@@ -264,13 +271,13 @@ export function IngredientList({
                   bg="white"
                   borderWidth="1px"
                 >
-                  <Text fontWeight="semibold" noOfLines={1} minW="150px">
+                  <Text fontWeight="semibold" minW="150px" style={truncateStyles}>
                     {ingredient.name}
                   </Text>
-                  <Text color="gray.600" fontSize="sm" noOfLines={1} flex="1" minW={0}>
+                  <Text color="gray.600" fontSize="sm" flex="1" minW={0} style={truncateStyles}>
                     {macrosLabel}
                   </Text>
-                  <Text color="gray.500" fontSize="xs" noOfLines={1}>
+                  <Text color="gray.500" fontSize="xs" style={truncateStyles}>
                     {constraintLabel}
                   </Text>
                   <CloseButton

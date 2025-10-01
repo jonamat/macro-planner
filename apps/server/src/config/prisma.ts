@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..');
-const DEFAULT_DB_URL = `file:${path.resolve(PROJECT_ROOT, 'prisma/data/dev.db')}`;
+const DEFAULT_DB_URL = 'file:./prisma/data/dev.db';
 
 function toAbsolutePath(databaseUrl: string) {
   const rawPath = databaseUrl.replace(/^file:/, '');
@@ -27,15 +27,6 @@ function ensureDatabaseDirectory(databaseUrl: string | undefined) {
   const absolutePath = toAbsolutePath(databaseUrl);
   const directory = path.dirname(absolutePath);
   fs.mkdirSync(directory, { recursive: true });
-}
-
-function toAbsoluteFileUrl(databaseUrl: string) {
-  if (!databaseUrl.startsWith('file:')) {
-    return databaseUrl;
-  }
-
-  const absolutePath = toAbsolutePath(databaseUrl);
-  return `file:${absolutePath}`;
 }
 
 function ensureDatabaseFile(databaseUrl: string | undefined) {
@@ -65,10 +56,6 @@ export function ensureDatabaseUrl() {
 
   ensureDatabaseDirectory(process.env.DATABASE_URL);
   ensureDatabaseFile(process.env.DATABASE_URL);
-
-  if (process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = toAbsoluteFileUrl(process.env.DATABASE_URL);
-  }
 }
 
 ensureDatabaseUrl();

@@ -922,9 +922,8 @@ function HomePage() {
         right={{ base: 4, md: 6 }}
         colorScheme="teal"
         onClick={handleCalculate}
-        isDisabled={calculateDisabled}
         disabled={calculateDisabled}
-        isLoading={saving}
+        loading={saving}
         zIndex="tooltip"
         size="lg"
         borderRadius="full"

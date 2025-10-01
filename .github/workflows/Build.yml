@@ -49,6 +49,10 @@ jobs:
           tags: |
             ${{ env.DOCKER_IMAGE }}:latest
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+          build-args: |
+            DATABASE_URL="file:./prisma/data/dev.db" 
+            JWT_SECRET="dev-secret"
+            SERVER_PORT=4000
 
       - name: Notify master webhook
         env:

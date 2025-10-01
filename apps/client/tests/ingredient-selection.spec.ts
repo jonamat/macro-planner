@@ -100,13 +100,14 @@ test.describe('Ingredient selection', () => {
     const quickSearch = page.getByTestId('ingredient-quick-search');
 
     await quickSearch.fill('rice');
-    const riceOption = page.getByRole('option', { name: 'White Rice' });
-    await riceOption.click();
+    await page.getByRole('option', { name: /White Rice/ }).waitFor();
+    await quickSearch.press('ArrowDown');
+    await quickSearch.press('Enter');
     await expect(page.getByRole('checkbox', { name: 'Include White Rice' })).toBeChecked();
 
     await quickSearch.fill('lean');
-    const chickenOption = page.getByRole('option', { name: 'Lean Chicken' });
-    await chickenOption.click();
+    await page.getByRole('option', { name: /Lean Chicken/ }).waitFor();
+    await quickSearch.press('Enter');
     await expect(page.getByRole('checkbox', { name: 'Include Lean Chicken' })).toBeChecked();
 
     await page.getByRole('checkbox', { name: 'Include Olive Oil' }).check();

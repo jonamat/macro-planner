@@ -27,7 +27,16 @@ export function MealsPanel({
   containerProps
 }: MealsPanelProps) {
   return (
-    <Box bg="white" p={5} borderRadius="md" boxShadow="sm" {...containerProps}>
+    <Box
+      {...containerProps}
+      bg="white"
+      p={5}
+      borderRadius="md"
+      boxShadow="sm"
+      w="full"
+      maxH="500px"
+      overflowY="auto"
+    >
       <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={3}>
         <Heading size="md">Meals</Heading>
         <Flex gap={2} wrap="wrap">

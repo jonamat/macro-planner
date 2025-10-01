@@ -1,6 +1,8 @@
-import { Box, Flex, Stack, useDisclosure } from '@chakra-ui/react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { optimizeMealToMacro } from '@macro-calculator/shared';
+import { Box, Button, Flex, Stack, useDisclosure } from "@chakra-ui/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { optimizeMealToMacro } from "@macro-calculator/shared";
 
 import {
   createIngredient,
@@ -9,30 +11,32 @@ import {
   fetchMeals,
   targetFromMeal,
   updateIngredient,
-  updateMeal
-} from '../../lib/api-client';
-import { useAuth } from '../../providers/AuthProvider';
-import type { ApiIngredient, ApiMeal } from '../../types/api';
+  updateMeal,
+} from "../../lib/api-client";
+import { useAuth } from "../../providers/AuthProvider";
+import type { ApiIngredient, ApiMeal } from "../../types/api";
 import type {
   CalculationState,
   ClientIngredient,
   IngredientField,
   IngredientModalValues,
-  MealModalValues
-} from './types';
-import { parseOptionalNumber } from './utils';
-import { HeaderSection } from './HeaderSection';
-import { IngredientList } from './IngredientList';
-import { MealsPanel } from './MealsPanel';
-import { IngredientModal } from './IngredientModal';
-import { MealModal } from './MealModal';
-import { ResultsModal } from './ResultsModal';
-import type { ChangeEvent } from 'react';
+  MealModalValues,
+} from "./types";
+import { parseOptionalNumber } from "./utils";
+import { HeaderSection } from "./HeaderSection";
+import { IngredientList } from "./IngredientList";
+import { MealsPanel } from "./MealsPanel";
+import { IngredientModal } from "./IngredientModal";
+import { MealModal } from "./MealModal";
+import { ResultsModal } from "./ResultsModal";
+import type { ChangeEvent } from "react";
 
 const ZERO_EPSILON = 1e-6;
-const LAST_SELECTED_MEAL_KEY = 'macro-calculator-last-meal';
+const LAST_SELECTED_MEAL_KEY = "macro-calculator-last-meal";
 
-function sanitizeNullableNumber(value: number | null | undefined): number | null {
+function sanitizeNullableNumber(
+  value: number | null | undefined
+): number | null {
   if (value === null || value === undefined) {
     return null;
   }
@@ -56,7 +60,10 @@ function sanitizePositiveStep(value: number | null | undefined): number | null {
   return value;
 }
 
-function toClientIngredient(record: ApiIngredient, included = false): ClientIngredient {
+function toClientIngredient(
+  record: ApiIngredient,
+  included = false
+): ClientIngredient {
   return {
     id: record.id,
     name: record.name,
@@ -68,7 +75,7 @@ function toClientIngredient(record: ApiIngredient, included = false): ClientIngr
     mandatory: sanitizeNullableNumber(record.mandatory),
     indivisible: sanitizePositiveStep(record.indivisible),
     sequence: record.sequence,
-    included
+    included,
   };
 }
 
@@ -98,25 +105,28 @@ function HomePage() {
   const [selectedMealId, setSelectedMealId] = useState<string | null>(null);
   const [calculation, setCalculation] = useState<CalculationState | null>(null);
   const [editingMeal, setEditingMeal] = useState<ApiMeal | null>(null);
-  const [editingIngredient, setEditingIngredient] = useState<ClientIngredient | null>(null);
+  const [editingIngredient, setEditingIngredient] =
+    useState<ClientIngredient | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [calcError, setCalcError] = useState<string | null>(null);
 
   const mealImportInputRef = useRef<HTMLInputElement | null>(null);
   const ingredientImportInputRef = useRef<HTMLInputElement | null>(null);
 
-  const sortIngredients = useCallback((items: ClientIngredient[]) =>
-    items.slice().sort((a, b) => {
-      const seqA = typeof a.sequence === 'number' ? a.sequence : Number.MAX_SAFE_INTEGER;
-      const seqB = typeof b.sequence === 'number' ? b.sequence : Number.MAX_SAFE_INTEGER;
-      if (seqA !== seqB) {
-        return seqA - seqB;
-      }
-      return a.name.localeCompare(b.name);
-    }),
+  const sortIngredients = useCallback(
+    (items: ClientIngredient[]) =>
+      items.slice().sort((a, b) => {
+        const seqA =
+          typeof a.sequence === "number" ? a.sequence : Number.MAX_SAFE_INTEGER;
+        const seqB =
+          typeof b.sequence === "number" ? b.sequence : Number.MAX_SAFE_INTEGER;
+        if (seqA !== seqB) {
+          return seqA - seqB;
+        }
+        return a.name.localeCompare(b.name);
+      }),
     []
   );
 
@@ -129,7 +139,7 @@ function HomePage() {
         setError(null);
         const [ingredientData, mealData] = await Promise.all([
           fetchIngredients(token),
-          fetchMeals(token)
+          fetchMeals(token),
         ]);
         const normalizedIngredients = sortIngredients(
           ingredientData.map((item) => toClientIngredient(item))
@@ -137,17 +147,20 @@ function HomePage() {
         setIngredients(normalizedIngredients);
         setMeals(mealData);
 
-        const storedMealId = typeof window !== 'undefined'
-          ? localStorage.getItem(LAST_SELECTED_MEAL_KEY)
-          : null;
+        const storedMealId =
+          typeof window !== "undefined"
+            ? localStorage.getItem(LAST_SELECTED_MEAL_KEY)
+            : null;
 
-        const initialMealId = storedMealId && mealData.some((meal) => meal.id === storedMealId)
-          ? storedMealId
-          : mealData[0]?.id ?? null;
+        const initialMealId =
+          storedMealId && mealData.some((meal) => meal.id === storedMealId)
+            ? storedMealId
+            : mealData[0]?.id ?? null;
 
         setSelectedMealId(initialMealId);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to load data';
+        const message =
+          err instanceof Error ? err.message : "Unable to load data";
         setError(message);
       } finally {
         setLoading(false);
@@ -164,7 +177,7 @@ function HomePage() {
 
   useEffect(() => {
     if (!selectedMealId) return;
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     localStorage.setItem(LAST_SELECTED_MEAL_KEY, selectedMealId);
   }, [selectedMealId]);
@@ -176,8 +189,8 @@ function HomePage() {
 
   const handleIngredientFieldChange = useCallback(
     (ingredientId: string, field: IngredientField, rawValue: string) => {
-      const nextValue = rawValue === '' ? null : Number(rawValue);
-      if (rawValue !== '' && Number.isNaN(nextValue)) {
+      const nextValue = rawValue === "" ? null : Number(rawValue);
+      if (rawValue !== "" && Number.isNaN(nextValue)) {
         return;
       }
 
@@ -186,7 +199,7 @@ function HomePage() {
           item.id === ingredientId
             ? {
                 ...item,
-                [field]: nextValue
+                [field]: nextValue,
               }
             : item
         )
@@ -208,10 +221,11 @@ function HomePage() {
           min: latest.min,
           max: latest.max,
           mandatory: latest.mandatory,
-          sequence: latest.sequence
+          sequence: latest.sequence,
         });
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to update ingredient';
+        const message =
+          err instanceof Error ? err.message : "Unable to update ingredient";
         setError(message);
       } finally {
         setSaving(false);
@@ -234,15 +248,19 @@ function HomePage() {
           min: parseOptionalNumber(values.min),
           max: parseOptionalNumber(values.max),
           mandatory: parseOptionalNumber(values.mandatory),
-          indivisible: parseOptionalNumber(values.indivisible)
+          indivisible: parseOptionalNumber(values.indivisible),
         } as const;
 
         const hasName = Boolean(payload.name);
-        const macros = [payload.carbo100g, payload.protein100g, payload.fat100g];
+        const macros = [
+          payload.carbo100g,
+          payload.protein100g,
+          payload.fat100g,
+        ];
         const hasValidMacros = macros.every((value) => Number.isFinite(value));
 
         if (!hasName || !hasValidMacros) {
-          setError('Name and macronutrients are required');
+          setError("Name and macronutrients are required");
           setSaving(false);
           return;
         }
@@ -253,7 +271,8 @@ function HomePage() {
         );
         ingredientModal.onClose();
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to create ingredient';
+        const message =
+          err instanceof Error ? err.message : "Unable to create ingredient";
         setError(message);
       } finally {
         setSaving(false);
@@ -263,9 +282,11 @@ function HomePage() {
   );
 
   const downloadJson = useCallback((data: unknown, filename: string) => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
@@ -280,9 +301,9 @@ function HomePage() {
       name: meal.name,
       carbo: meal.carbo,
       protein: meal.protein,
-      fat: meal.fat
+      fat: meal.fat,
     }));
-    downloadJson(payload, 'meals.json');
+    downloadJson(payload, "meals.json");
   }, [downloadJson, meals]);
 
   const handleIngredientsExport = useCallback(() => {
@@ -294,17 +315,21 @@ function HomePage() {
       fat100g: ingredient.fat100g,
       ...(ingredient.min != null ? { min: ingredient.min } : {}),
       ...(ingredient.max != null ? { max: ingredient.max } : {}),
-      ...(ingredient.mandatory != null ? { mandatory: ingredient.mandatory } : {}),
-      ...(ingredient.indivisible != null ? { indivisible: ingredient.indivisible } : {})
+      ...(ingredient.mandatory != null
+        ? { mandatory: ingredient.mandatory }
+        : {}),
+      ...(ingredient.indivisible != null
+        ? { indivisible: ingredient.indivisible }
+        : {}),
     }));
-    downloadJson(payload, 'ingredients.json');
+    downloadJson(payload, "ingredients.json");
   }, [downloadJson, ingredients]);
 
   const handleMealsImport = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
       if (!token) return;
       const file = event.currentTarget.files?.[0];
-      event.currentTarget.value = '';
+      event.currentTarget.value = "";
       if (!file) return;
 
       try {
@@ -313,20 +338,25 @@ function HomePage() {
         const text = await file.text();
         const parsed = JSON.parse(text) as unknown;
         if (!Array.isArray(parsed)) {
-          throw new Error('Invalid meals file format');
+          throw new Error("Invalid meals file format");
         }
 
         const normalized = parsed.map((entry, index) => {
-          if (typeof entry !== 'object' || entry === null) {
+          if (typeof entry !== "object" || entry === null) {
             throw new Error(`Invalid meal entry at index ${index}`);
           }
           const raw = entry as Record<string, unknown>;
-          const name = typeof raw.name === 'string' ? raw.name.trim() : '';
+          const name = typeof raw.name === "string" ? raw.name.trim() : "";
           const carbo = Number(raw.carbo);
           const protein = Number(raw.protein);
           const fat = Number(raw.fat);
 
-          if (!name || !Number.isFinite(carbo) || !Number.isFinite(protein) || !Number.isFinite(fat)) {
+          if (
+            !name ||
+            !Number.isFinite(carbo) ||
+            !Number.isFinite(protein) ||
+            !Number.isFinite(fat)
+          ) {
             throw new Error(`Invalid meal entry at index ${index}`);
           }
 
@@ -338,9 +368,9 @@ function HomePage() {
         );
         setMeals((prev) => [...prev, ...created]);
         setSelectedMealId((prev) => prev ?? created[0]?.id ?? prev);
-        setCalcError(null);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to import meals';
+        const message =
+          err instanceof Error ? err.message : "Unable to import meals";
         setError(message);
       } finally {
         setSaving(false);
@@ -353,11 +383,11 @@ function HomePage() {
     async (event: ChangeEvent<HTMLInputElement>) => {
       if (!token) return;
       const file = event.currentTarget.files?.[0];
-      event.currentTarget.value = '';
+      event.currentTarget.value = "";
       if (!file) return;
 
       const parseOptional = (value: unknown) => {
-        if (value === null || value === undefined || value === '') {
+        if (value === null || value === undefined || value === "") {
           return null;
         }
         const num = Number(value);
@@ -370,15 +400,15 @@ function HomePage() {
         const text = await file.text();
         const parsed = JSON.parse(text) as unknown;
         if (!Array.isArray(parsed)) {
-          throw new Error('Invalid ingredients file format');
+          throw new Error("Invalid ingredients file format");
         }
 
         const normalized = parsed.map((entry, index) => {
-          if (typeof entry !== 'object' || entry === null) {
+          if (typeof entry !== "object" || entry === null) {
             throw new Error(`Invalid ingredient entry at index ${index}`);
           }
           const raw = entry as Record<string, unknown>;
-          const name = typeof raw.name === 'string' ? raw.name.trim() : '';
+          const name = typeof raw.name === "string" ? raw.name.trim() : "";
           const carbo100g = Number(raw.carbo100g);
           const protein100g = Number(raw.protein100g);
           const fat100g = Number(raw.fat100g);
@@ -400,7 +430,7 @@ function HomePage() {
             min,
             max,
             mandatory,
-            indivisible
+            indivisible,
           };
         });
 
@@ -414,16 +444,19 @@ function HomePage() {
               min: payload.min,
               max: payload.max,
               mandatory: payload.mandatory,
-              indivisible: payload.indivisible
+              indivisible: payload.indivisible,
             })
           )
         );
         setIngredients((prev) =>
-          sortIngredients([...prev, ...created.map((item) => toClientIngredient(item))])
+          sortIngredients([
+            ...prev,
+            ...created.map((item) => toClientIngredient(item)),
+          ])
         );
-        setCalcError(null);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to import ingredients';
+        const message =
+          err instanceof Error ? err.message : "Unable to import ingredients";
         setError(message);
       } finally {
         setSaving(false);
@@ -450,20 +483,28 @@ function HomePage() {
           max: parseOptionalNumber(values.max),
           mandatory: parseOptionalNumber(values.mandatory),
           indivisible: parseOptionalNumber(values.indivisible),
-          sequence: currentIngredient.sequence
+          sequence: currentIngredient.sequence,
         } as const;
 
         const hasName = Boolean(payload.name);
-        const macros = [payload.carbo100g, payload.protein100g, payload.fat100g];
+        const macros = [
+          payload.carbo100g,
+          payload.protein100g,
+          payload.fat100g,
+        ];
         const hasValidMacros = macros.every((value) => Number.isFinite(value));
 
         if (!hasName || !hasValidMacros) {
-          setError('Name and macronutrients are required');
+          setError("Name and macronutrients are required");
           setSaving(false);
           return;
         }
 
-        const updated = await updateIngredient(token, currentIngredient.id, payload);
+        const updated = await updateIngredient(
+          token,
+          currentIngredient.id,
+          payload
+        );
         setIngredients((prev) =>
           sortIngredients(
             prev.map((item) =>
@@ -476,7 +517,8 @@ function HomePage() {
         setEditingIngredient(null);
         editIngredientModal.onClose();
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to update ingredient';
+        const message =
+          err instanceof Error ? err.message : "Unable to update ingredient";
         setError(message);
       } finally {
         setSaving(false);
@@ -485,20 +527,21 @@ function HomePage() {
     [editIngredientModal.onClose, editingIngredient, sortIngredients, token]
   );
 
-  const handleIngredientToggle = useCallback((ingredientId: string, included: boolean) => {
-    setCalcError(null);
-    setIngredients((prev) =>
-      prev.map((item) =>
-        item.id === ingredientId
-          ? { ...item, included }
-          : item
-      )
-    );
-  }, []);
+  const handleIngredientToggle = useCallback(
+    (ingredientId: string, included: boolean) => {
+      setIngredients((prev) =>
+        prev.map((item) =>
+          item.id === ingredientId ? { ...item, included } : item
+        )
+      );
+    },
+    []
+  );
 
   const handleResetIngredients = useCallback(() => {
-    setCalcError(null);
-    setIngredients((prev) => prev.map((item) => ({ ...item, included: false })));
+    setIngredients((prev) =>
+      prev.map((item) => ({ ...item, included: false }))
+    );
   }, []);
 
   const triggerMealsImport = useCallback(() => {
@@ -516,12 +559,17 @@ function HomePage() {
         setSaving(true);
         await Promise.all(
           orderedList.map((ingredient) =>
-            updateIngredient(token, ingredient.id, { sequence: ingredient.sequence })
+            updateIngredient(token, ingredient.id, {
+              sequence: ingredient.sequence,
+            })
           )
         );
         setIngredients((prev) => sortIngredients(prev));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to update ingredient order';
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Unable to update ingredient order";
         setError(message);
       } finally {
         setSaving(false);
@@ -552,7 +600,8 @@ function HomePage() {
         return;
       }
 
-      let insertIndex = targetId === null ? list.length : targetIndexBeforeRemoval;
+      let insertIndex =
+        targetId === null ? list.length : targetIndexBeforeRemoval;
       if (targetId !== null && targetIndexBeforeRemoval > sourceIndex) {
         insertIndex = Math.max(0, insertIndex - 1);
       }
@@ -577,7 +626,7 @@ function HomePage() {
           name: values.name.trim(),
           carbo: Number(values.carbo),
           protein: Number(values.protein),
-          fat: Number(values.fat)
+          fat: Number(values.fat),
         } as const;
 
         const hasName = Boolean(payload.name);
@@ -585,7 +634,7 @@ function HomePage() {
         const hasValidMacros = macros.every((value) => Number.isFinite(value));
 
         if (!hasName || !hasValidMacros) {
-          setError('Name and macro targets are required');
+          setError("Name and macro targets are required");
           setSaving(false);
           return;
         }
@@ -595,7 +644,8 @@ function HomePage() {
         setSelectedMealId((prev) => prev ?? created.id);
         mealModal.onClose();
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to save meal';
+        const message =
+          err instanceof Error ? err.message : "Unable to save meal";
         setError(message);
       } finally {
         setSaving(false);
@@ -615,7 +665,7 @@ function HomePage() {
           name: values.name.trim(),
           carbo: Number(values.carbo),
           protein: Number(values.protein),
-          fat: Number(values.fat)
+          fat: Number(values.fat),
         } as const;
 
         const hasName = Boolean(payload.name);
@@ -623,17 +673,20 @@ function HomePage() {
         const hasValidMacros = macros.every((value) => Number.isFinite(value));
 
         if (!hasName || !hasValidMacros) {
-          setError('Name and macro targets are required');
+          setError("Name and macro targets are required");
           setSaving(false);
           return;
         }
 
         const updated = await updateMeal(token, editingMeal.id, payload);
-        setMeals((prev) => prev.map((meal) => (meal.id === updated.id ? updated : meal)));
+        setMeals((prev) =>
+          prev.map((meal) => (meal.id === updated.id ? updated : meal))
+        );
         setEditingMeal(null);
         editMealModal.onClose();
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to save meal';
+        const message =
+          err instanceof Error ? err.message : "Unable to save meal";
         setError(message);
       } finally {
         setSaving(false);
@@ -643,17 +696,31 @@ function HomePage() {
   );
 
   const handleCalculate = useCallback(() => {
-    setCalcError(null);
     resultsModal.onClose();
 
     if (!selectedMeal) {
-      setCalcError('Please create or select a meal to calculate.');
+      toast.warn("Please create or select a meal to calculate.", {
+        position: "top-center",
+        autoClose: 6000,
+        closeOnClick: true,
+        draggable: true,
+      });
       return;
     }
 
-    const activeIngredients = ingredients.filter((ingredient) => ingredient.included);
+    const activeIngredients = ingredients.filter(
+      (ingredient) => ingredient.included
+    );
     if (!activeIngredients.length) {
-      setCalcError('Please include at least one ingredient to run the optimizer.');
+      toast.warn(
+        "Please include at least one ingredient to run the optimizer.",
+        {
+          position: "top-center",
+          autoClose: 6000,
+          closeOnClick: true,
+          draggable: true,
+        }
+      );
       return;
     }
 
@@ -673,17 +740,21 @@ function HomePage() {
           ...(min !== undefined ? { min } : {}),
           ...(max !== undefined ? { max } : {}),
           ...(mandatory !== undefined ? { mandatory } : {}),
-          ...(indivisible !== undefined ? { indivisible } : {})
+          ...(indivisible !== undefined ? { indivisible } : {}),
         };
       });
 
       const result = optimizeMealToMacro(target, optimizerInput);
 
-      const totalWeight = result.ingredients.reduce((sum, row) => sum + row.weight, 0);
+      const totalWeight = result.ingredients.reduce(
+        (sum, row) => sum + row.weight,
+        0
+      );
       const targetKcal = target.carbo * 4 + target.protein * 4 + target.fat * 9;
-      const deviationKcal = targetKcal === 0
-        ? 0
-        : ((result.total.kcal - targetKcal) / targetKcal) * 100;
+      const deviationKcal =
+        targetKcal === 0
+          ? 0
+          : ((result.total.kcal - targetKcal) / targetKcal) * 100;
 
       setCalculation({
         targetName: target.name,
@@ -700,18 +771,42 @@ function HomePage() {
         deviationCarbo: result.deviation.carbo,
         deviationProtein: result.deviation.protein,
         deviationFat: result.deviation.fat,
-        deviationKcal
+        deviationKcal,
       });
       resultsModal.onOpen();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to calculate meal';
-      setCalcError(message);
+      const message =
+        err instanceof Error ? err.message : "Unable to calculate meal";
+      toast.warn(message, {
+        position: "top-center",
+        autoClose: 6000,
+        closeOnClick: true,
+        draggable: true,
+      });
       setCalculation(null);
     }
   }, [ingredients, resultsModal.onClose, resultsModal.onOpen, selectedMeal]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const listener = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        handleCalculate();
+      }
+    };
+
+    window.addEventListener("keydown", listener);
+    return () => {
+      window.removeEventListener("keydown", listener);
+    };
+  }, [handleCalculate]);
+
   const handleLogout = () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.removeItem(LAST_SELECTED_MEAL_KEY);
     }
     logout();
@@ -719,7 +814,7 @@ function HomePage() {
 
   const handleSelectMeal = (mealId: string) => {
     setSelectedMealId(mealId);
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.setItem(LAST_SELECTED_MEAL_KEY, mealId);
     }
   };
@@ -734,7 +829,7 @@ function HomePage() {
         name: editingMeal.name,
         carbo: String(editingMeal.carbo),
         protein: String(editingMeal.protein),
-        fat: String(editingMeal.fat)
+        fat: String(editingMeal.fat),
       }
     : undefined;
 
@@ -744,34 +839,44 @@ function HomePage() {
         carbo100g: String(editingIngredient.carbo100g),
         protein100g: String(editingIngredient.protein100g),
         fat100g: String(editingIngredient.fat100g),
-        min: editingIngredient.min != null ? String(editingIngredient.min) : '',
-        max: editingIngredient.max != null ? String(editingIngredient.max) : '',
-        mandatory: editingIngredient.mandatory != null ? String(editingIngredient.mandatory) : '',
-        indivisible: editingIngredient.indivisible != null ? String(editingIngredient.indivisible) : ''
+        min: editingIngredient.min != null ? String(editingIngredient.min) : "",
+        max: editingIngredient.max != null ? String(editingIngredient.max) : "",
+        mandatory:
+          editingIngredient.mandatory != null
+            ? String(editingIngredient.mandatory)
+            : "",
+        indivisible:
+          editingIngredient.indivisible != null
+            ? String(editingIngredient.indivisible)
+            : "",
       }
     : undefined;
 
-  const calculateDisabled = loading || saving || !selectedMeal || !hasIncludedIngredients;
+  const calculateDisabled =
+    loading || saving || !selectedMeal || !hasIncludedIngredients;
 
   return (
     <Box p={6} bg="gray.50" minH="100vh">
-      <HeaderSection
-        username={user?.username}
-        onLogout={handleLogout}
-        onCalculate={handleCalculate}
-        calculateDisabled={calculateDisabled}
-        isCalculating={saving}
+      <ToastContainer
+        position="top-center"
+        autoClose={6000}
+        hideProgressBar
+        closeOnClick
+        pauseOnHover={false}
       />
 
-      {error && (
-        <Box bg="red.100" color="red.700" borderRadius="md" px={4} py={3} mb={6}>
-          {error}
-        </Box>
-      )}
+      <HeaderSection username={user?.username} onLogout={handleLogout} />
 
-      {calcError && (
-        <Box bg="yellow.100" color="yellow.900" borderRadius="md" px={4} py={3} mb={6}>
-          {calcError}
+      {error && (
+        <Box
+          bg="red.100"
+          color="red.700"
+          borderRadius="md"
+          px={4}
+          py={3}
+          mb={6}
+        >
+          {error}
         </Box>
       )}
 
@@ -810,6 +915,23 @@ function HomePage() {
           onReorder={handleIngredientReorder}
         />
       </Stack>
+
+      <Button
+        position="fixed"
+        bottom={{ base: 4, md: 6 }}
+        right={{ base: 4, md: 6 }}
+        colorScheme="teal"
+        onClick={handleCalculate}
+        isDisabled={calculateDisabled}
+        disabled={calculateDisabled}
+        isLoading={saving}
+        zIndex="tooltip"
+        size="lg"
+        borderRadius="full"
+        boxShadow="lg"
+      >
+        Calculate
+      </Button>
 
       <IngredientModal
         open={ingredientModal.open}
@@ -853,18 +975,19 @@ function HomePage() {
         calculation={calculation}
         onClose={resultsModal.onClose}
       />
+
       <input
         ref={mealImportInputRef}
         type="file"
         accept="application/json"
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
         onChange={handleMealsImport}
       />
       <input
         ref={ingredientImportInputRef}
         type="file"
         accept="application/json"
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
         onChange={handleIngredientsImport}
       />
     </Box>

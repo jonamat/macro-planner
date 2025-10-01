@@ -234,7 +234,7 @@ test.describe('Macro Planner end-to-end workflow', () => {
       page.click('button:has-text("Save")')
     ]);
     await expect(page.getByRole('heading', { name: 'Add ingredient' })).not.toBeVisible();
-    await expect(page.getByText('Unit Ingredient')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Unit Ingredient' })).toBeVisible();
 
     await page.click('button:has-text("Calculate")');
 

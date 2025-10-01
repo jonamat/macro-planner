@@ -1,6 +1,6 @@
-import { Box, Button, Flex, Heading, IconButton, Input, Stack, Text, chakra } from '@chakra-ui/react';
+import { Box, Button, CloseButton, Flex, Heading, IconButton, Input, Stack, Text, chakra } from '@chakra-ui/react';
 import type { BoxProps, IconProps } from '@chakra-ui/react';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react';
 
 import type { ClientIngredient, IngredientField } from './types';
@@ -45,6 +45,7 @@ export function IngredientList({
 }: IngredientListProps) {
   const [search, setSearch] = useState('');
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const [highlightedIndex, setHighlightedIndex] = useState<number>(0);
 
   const handleDragStart = (event: DragEvent<HTMLElement>, ingredientId: string) => {
     event.dataTransfer.setData('text/plain', ingredientId);
@@ -84,22 +85,71 @@ export function IngredientList({
     [ingredients, normalizedSearch]
   );
 
+  const includedIngredients = useMemo(
+    () => ingredients.filter((ingredient) => ingredient.included),
+    [ingredients]
+  );
+
+  useEffect(() => {
+    if (!suggestions.length) {
+      setHighlightedIndex(-1);
+      return;
+    }
+
+    setHighlightedIndex((prev) => {
+      if (prev < 0 || prev >= suggestions.length) {
+        return 0;
+      }
+      return prev;
+    });
+  }, [suggestions]);
+
   const handleSelectSuggestion = (ingredientId: string) => {
     onToggleInclude(ingredientId, true);
     setSearch('');
+    setHighlightedIndex(0);
     searchInputRef.current?.focus();
   };
 
   const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      if (!suggestions.length) return;
+      setHighlightedIndex((prev) => {
+        if (prev === -1 || prev >= suggestions.length - 1) {
+          return 0;
+        }
+        return prev + 1;
+      });
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (!suggestions.length) return;
+      setHighlightedIndex((prev) => {
+        if (prev <= 0) {
+          return suggestions.length - 1;
+        }
+        return prev - 1;
+      });
+      return;
+    }
+
     if (event.key === 'Enter' && suggestions.length > 0) {
       event.preventDefault();
-      const firstSuggestion = suggestions[0];
-      if (firstSuggestion) {
-        handleSelectSuggestion(firstSuggestion.id);
+      const selected =
+        highlightedIndex >= 0 && highlightedIndex < suggestions.length
+          ? suggestions[highlightedIndex]
+          : suggestions[0];
+      if (selected) {
+        handleSelectSuggestion(selected.id);
       }
+      return;
     }
     if (event.key === 'Escape') {
       setSearch('');
+      setHighlightedIndex(0);
     }
   };
 
@@ -128,7 +178,10 @@ export function IngredientList({
           ref={searchInputRef}
           placeholder="Search ingredients to include"
           value={search}
-          onChange={(event) => setSearch(event.currentTarget.value)}
+          onChange={(event) => {
+            setSearch(event.currentTarget.value);
+            setHighlightedIndex(0);
+          }}
           onKeyDown={handleSearchKeyDown}
           data-testid="ingredient-quick-search"
         />
@@ -154,32 +207,83 @@ export function IngredientList({
                 </Text>
               </Box>
             ) : (
-              suggestions.map((ingredient) => (
-                <Box
-                  as="button"
-                  key={ingredient.id}
-                  type="button"
-                  role="option"
-                  w="100%"
-                  textAlign="left"
-                  px={3}
-                  py={2}
-                  _hover={{ bg: 'gray.100' }}
-                  onMouseDown={(event) => {
-                    event.preventDefault();
-                    handleSelectSuggestion(ingredient.id);
-                  }}
-                >
-                  <Text fontWeight="semibold">{ingredient.name}</Text>
-                  <Text fontSize="xs" color="gray.500">
-                    {ingredient.carbo100g}g carbs • {ingredient.protein100g}g protein • {ingredient.fat100g}g fat
-                  </Text>
-                </Box>
-              ))
+              suggestions.map((ingredient, index) => {
+                const isHighlighted = index === highlightedIndex;
+                return (
+                  <Box
+                    as="button"
+                    key={ingredient.id}
+                    type="button"
+                    role="option"
+                    aria-selected={isHighlighted}
+                    w="100%"
+                    textAlign="left"
+                    px={3}
+                    py={2}
+                    bg={isHighlighted ? 'gray.100' : 'white'}
+                    _hover={{ bg: 'gray.100' }}
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      handleSelectSuggestion(ingredient.id);
+                    }}
+                    onMouseEnter={() => setHighlightedIndex(index)}
+                  >
+                    <Text fontWeight="semibold">{ingredient.name}</Text>
+                    <Text fontSize="xs" color="gray.500">
+                      {ingredient.carbo100g}g carbs • {ingredient.protein100g}g protein • {ingredient.fat100g}g fat
+                    </Text>
+                  </Box>
+                );
+              })
             )}
           </Box>
         )}
       </Box>
+      {includedIngredients.length > 0 && (
+        <Box
+          borderWidth="1px"
+          borderRadius="md"
+          p={3}
+          mb={4}
+          bg="gray.50"
+        >
+          <Heading size="sm" mb={2} color="gray.700">
+            Selected ingredients
+          </Heading>
+          <Stack gap={2}>
+            {includedIngredients.map((ingredient) => {
+              const macrosLabel = `${ingredient.carbo100g}g carbs • ${ingredient.protein100g}g protein • ${ingredient.fat100g}g fat`;
+              const constraintLabel = `Min: ${ingredient.min ?? '—'}g • Max: ${ingredient.max ?? '—'}g • Mandatory: ${ingredient.mandatory ?? '—'}g`;
+              return (
+                <Flex
+                  key={`selected-${ingredient.id}`}
+                  align="center"
+                  gap={4}
+                  p={2}
+                  borderRadius="md"
+                  bg="white"
+                  borderWidth="1px"
+                >
+                  <Text fontWeight="semibold" noOfLines={1} minW="150px">
+                    {ingredient.name}
+                  </Text>
+                  <Text color="gray.600" fontSize="sm" noOfLines={1} flex="1" minW={0}>
+                    {macrosLabel}
+                  </Text>
+                  <Text color="gray.500" fontSize="xs" noOfLines={1}>
+                    {constraintLabel}
+                  </Text>
+                  <CloseButton
+                    size="sm"
+                    onClick={() => onToggleInclude(ingredient.id, false)}
+                    aria-label={`Remove ${ingredient.name}`}
+                  />
+                </Flex>
+              );
+            })}
+          </Stack>
+        </Box>
+      )}
       {loading ? (
         <Flex justify="center" py={10}>
           <Text color="gray.500">Loading...</Text>
@@ -218,7 +322,7 @@ export function IngredientList({
                     {ingredient.carbo100g}g carbs • {ingredient.protein100g}g protein • {ingredient.fat100g}g fat • indivisible: {ingredient.indivisible ?? 'n/a'}g
                   </Text>
                 </Box>
-                <Flex gap={3} wrap="wrap" flex="1"justify="end">
+                <Flex gap={3} wrap="wrap" flex="1" justify="end">
                   {(['min', 'max', 'mandatory'] as IngredientField[]).map((field) => (
                     <Box key={field} minW="110px">
                       <Label

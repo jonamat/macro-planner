@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Install Playwright browsers
+        run: yarn workspace @macro-calculator/client exec playwright install --with-deps
+
       - name: Run tests
         run: yarn test
         env:

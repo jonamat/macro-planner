@@ -7,6 +7,8 @@ import { optimizeMealToMacro } from "@macro-calculator/shared";
 import {
   createIngredient,
   createMeal,
+  deleteIngredient,
+  deleteMeal,
   fetchIngredients,
   fetchMeals,
   targetFromMeal,
@@ -187,6 +189,14 @@ function HomePage() {
     [ingredients]
   );
 
+  const ingredientsById = useMemo(() => {
+    const lookup = new Map<string, ClientIngredient>();
+    for (const ingredient of ingredients) {
+      lookup.set(ingredient.id, ingredient);
+    }
+    return lookup;
+  }, [ingredients]);
+
   const handleIngredientFieldChange = useCallback(
     (ingredientId: string, field: IngredientField, rawValue: string) => {
       const nextValue = rawValue === "" ? null : Number(rawValue);
@@ -194,34 +204,82 @@ function HomePage() {
         return;
       }
 
-      setIngredients((prev) =>
-        prev.map((item) =>
-          item.id === ingredientId
-            ? {
-                ...item,
-                [field]: nextValue,
-              }
-            : item
-        )
-      );
+      setIngredients((prev) => {
+        let changed = false;
+        const next = prev.map((item) => {
+          if (item.id !== ingredientId) {
+            return item;
+          }
+          const currentValue = (item[field] ?? null) as number | null;
+          if (Object.is(currentValue, nextValue)) {
+            return item;
+          }
+          changed = true;
+          return {
+            ...item,
+            [field]: nextValue,
+          };
+        });
+        return changed ? next : prev;
+      });
     },
     []
   );
 
   const handleIngredientFieldCommit = useCallback(
-    async (ingredient: ClientIngredient) => {
+    async (ingredientId: string, field: IngredientField, rawValue: string) => {
       if (!token) return;
 
-      const latest = ingredients.find((item) => item.id === ingredient.id);
-      if (!latest) return;
+      const normalized = rawValue === "" ? null : Number(rawValue);
+      if (rawValue !== "" && Number.isNaN(normalized)) {
+        return;
+      }
+
+      const current = ingredientsById.get(ingredientId);
+      if (!current) {
+        return;
+      }
 
       try {
         setSaving(true);
-        await updateIngredient(token, ingredient.id, {
-          min: latest.min,
-          max: latest.max,
-          mandatory: latest.mandatory,
-          sequence: latest.sequence,
+        const apiIngredient = await updateIngredient(token, ingredientId, {
+          min: field === "min" ? normalized : current.min,
+          max: field === "max" ? normalized : current.max,
+          mandatory: field === "mandatory" ? normalized : current.mandatory,
+          sequence: current.sequence,
+        });
+
+        const normalizedIngredient = toClientIngredient(
+          apiIngredient,
+          current.included
+        );
+
+        setIngredients((prev) => {
+          let changed = false;
+          const next = prev.map((item) => {
+            if (item.id !== normalizedIngredient.id) {
+              return item;
+            }
+
+            const isSame =
+              item.min === normalizedIngredient.min &&
+              item.max === normalizedIngredient.max &&
+              item.mandatory === normalizedIngredient.mandatory &&
+              item.sequence === normalizedIngredient.sequence &&
+              item.carbo100g === normalizedIngredient.carbo100g &&
+              item.protein100g === normalizedIngredient.protein100g &&
+              item.fat100g === normalizedIngredient.fat100g &&
+              item.indivisible === normalizedIngredient.indivisible;
+
+            if (isSame) {
+              return item;
+            }
+
+            changed = true;
+            return { ...normalizedIngredient, included: item.included };
+          });
+
+          return changed ? next : prev;
         });
       } catch (err) {
         const message =
@@ -231,7 +289,7 @@ function HomePage() {
         setSaving(false);
       }
     },
-    [ingredients, token]
+    [ingredientsById, token]
   );
 
   const handleIngredientCreate = useCallback(
@@ -527,21 +585,60 @@ function HomePage() {
     [editIngredientModal.onClose, editingIngredient, sortIngredients, token]
   );
 
+  const handleIngredientDelete = useCallback(async () => {
+    if (!token || !editingIngredient) {
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError(null);
+      const ingredientId = editingIngredient.id;
+      await deleteIngredient(token, ingredientId);
+      setIngredients((prev) => prev.filter((item) => item.id !== ingredientId));
+      setEditingIngredient(null);
+      editIngredientModal.onClose();
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unable to delete ingredient";
+      setError(message);
+    } finally {
+      setSaving(false);
+    }
+  }, [editIngredientModal.onClose, editingIngredient, token]);
+
   const handleIngredientToggle = useCallback(
     (ingredientId: string, included: boolean) => {
-      setIngredients((prev) =>
-        prev.map((item) =>
-          item.id === ingredientId ? { ...item, included } : item
-        )
-      );
+      setIngredients((prev) => {
+        let changed = false;
+        const next = prev.map((item) => {
+          if (item.id !== ingredientId) {
+            return item;
+          }
+          if (item.included === included) {
+            return item;
+          }
+          changed = true;
+          return { ...item, included };
+        });
+        return changed ? next : prev;
+      });
     },
     []
   );
 
   const handleResetIngredients = useCallback(() => {
-    setIngredients((prev) =>
-      prev.map((item) => ({ ...item, included: false }))
-    );
+    setIngredients((prev) => {
+      let changed = false;
+      const next = prev.map((item) => {
+        if (!item.included) {
+          return item;
+        }
+        changed = true;
+        return { ...item, included: false };
+      });
+      return changed ? next : prev;
+    });
   }, []);
 
   const triggerMealsImport = useCallback(() => {
@@ -695,6 +792,39 @@ function HomePage() {
     [editMealModal.onClose, editingMeal, token]
   );
 
+  const handleMealDelete = useCallback(async () => {
+    if (!token || !editingMeal) {
+      return;
+    }
+
+    const mealId = editingMeal.id;
+    const wasSelected = selectedMealId === mealId;
+
+    try {
+      setSaving(true);
+      setError(null);
+      await deleteMeal(token, mealId);
+      setMeals((prev) => {
+        const next = prev.filter((meal) => meal.id !== mealId);
+        if (wasSelected) {
+          const fallback = next[0]?.id ?? null;
+          setSelectedMealId(fallback);
+        }
+        return next;
+      });
+      if (wasSelected) {
+        setCalculation(null);
+      }
+      setEditingMeal(null);
+      editMealModal.onClose();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unable to delete meal";
+      setError(message);
+    } finally {
+      setSaving(false);
+    }
+  }, [editMealModal.onClose, editingMeal, selectedMealId, token]);
+
   const handleCalculate = useCallback(() => {
     resultsModal.onClose();
 
@@ -805,24 +935,24 @@ function HomePage() {
     };
   }, [handleCalculate]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     if (typeof window !== "undefined") {
       localStorage.removeItem(LAST_SELECTED_MEAL_KEY);
     }
     logout();
-  };
+  }, [logout]);
 
-  const handleSelectMeal = (mealId: string) => {
+  const handleSelectMeal = useCallback((mealId: string) => {
     setSelectedMealId(mealId);
     if (typeof window !== "undefined") {
       localStorage.setItem(LAST_SELECTED_MEAL_KEY, mealId);
     }
-  };
+  }, []);
 
-  const handleCloseEditMeal = () => {
+  const handleCloseEditMeal = useCallback(() => {
     setEditingMeal(null);
     editMealModal.onClose();
-  };
+  }, [editMealModal.onClose]);
 
   const editingMealValues = editingMeal
     ? {
@@ -856,7 +986,7 @@ function HomePage() {
     loading || saving || !selectedMeal || !hasIncludedIngredients;
 
   return (
-    <Box p={6} bg="gray.50" minH="100vh">
+    <Box p={{ base: 3, md: 6 }} bg="gray.50" minH="100vh">
       <ToastContainer
         position="top-center"
         autoClose={6000}
@@ -880,7 +1010,12 @@ function HomePage() {
         </Box>
       )}
 
-      <Stack gap={6} mb={10}>
+      <Stack
+        direction={{ base: 'column', xl: 'row' }}
+        gap={{ base: 4, md: 6 }}
+        mb={{ base: 8, md: 10 }}
+        align="stretch"
+      >
         <MealsPanel
           meals={meals}
           loading={loading}
@@ -896,6 +1031,7 @@ function HomePage() {
           }}
           onImportMeals={triggerMealsImport}
           onExportMeals={handleMealsExport}
+          containerProps={{ flex: '1', minW: { base: 'full', xl: '320px' } }}
         />
         <IngredientList
           ingredients={ingredients}
@@ -913,6 +1049,7 @@ function HomePage() {
           onExportIngredients={handleIngredientsExport}
           onResetIncludes={handleResetIngredients}
           onReorder={handleIngredientReorder}
+          containerProps={{ flex: '1', minW: { base: 'full', xl: '0' } }}
         />
       </Stack>
 
@@ -925,7 +1062,7 @@ function HomePage() {
         disabled={calculateDisabled}
         loading={saving}
         zIndex="tooltip"
-        size="lg"
+        size={{ base: 'md', md: 'lg' }}
         borderRadius="full"
         boxShadow="lg"
       >
@@ -950,6 +1087,8 @@ function HomePage() {
         }}
         onSubmit={handleIngredientUpdate}
         initialValues={editingIngredientValues}
+        onDelete={handleIngredientDelete}
+        isDeleting={saving}
       />
 
       <MealModal
@@ -967,6 +1106,8 @@ function HomePage() {
         onClose={handleCloseEditMeal}
         onSubmit={handleMealUpdate}
         initialValues={editingMealValues}
+        onDelete={handleMealDelete}
+        isDeleting={saving}
       />
 
       <ResultsModal

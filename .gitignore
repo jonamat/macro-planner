@@ -7,3 +7,4 @@ apps/*/dist
 packages/*/dist
 prisma/**/*.db
 prisma/**/*/.db-journal
+tmp/

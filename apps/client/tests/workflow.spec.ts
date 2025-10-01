@@ -191,7 +191,7 @@ test.describe('Macro Planner end-to-end workflow', () => {
 
     await page.waitForResponse('**/api/ingredients');
     await page.waitForResponse('**/api/meals');
-    await expect(page).toHaveURL('http://localhost:4173/');
+    await expect(page).toHaveURL('http://localhost:5173/');
 
     await page.click('button:has-text("Logout")');
     await expect(page).toHaveURL(/\/login$/);

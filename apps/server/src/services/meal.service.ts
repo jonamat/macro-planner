@@ -46,6 +46,16 @@ export class MealService {
     return this.toApi(meal);
   }
 
+  async delete(userId: string, mealId: string) {
+    const existing = await prisma.meal.findFirst({ where: { id: mealId, userId } });
+
+    if (!existing) {
+      throw new HttpError(404, 'Meal not found');
+    }
+
+    await prisma.meal.delete({ where: { id: mealId } });
+  }
+
   private toApi(record: {
     id: string;
     name: string;

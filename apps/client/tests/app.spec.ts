@@ -84,7 +84,7 @@ test.describe('Macro Planner app', () => {
     ]);
     expect(loginResponse.ok()).toBeTruthy();
 
-    await expect(page).toHaveURL('http://localhost:4173/');
+    await expect(page).toHaveURL('http://localhost:5173/');
 
     await page.waitForResponse('**/api/ingredients');
     await page.waitForResponse('**/api/meals');
@@ -126,7 +126,7 @@ test.describe('Macro Planner app', () => {
     ]);
     expect(signupResponse.ok()).toBeTruthy();
 
-    await expect(page).toHaveURL('http://localhost:4173/');
+    await expect(page).toHaveURL('http://localhost:5173/');
   });
 
   test('lets users add ingredient details without client errors', async ({ page }) => {

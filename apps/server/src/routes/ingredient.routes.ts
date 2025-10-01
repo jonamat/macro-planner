@@ -7,5 +7,6 @@ const router = Router();
 router.get('/', (req, res) => ingredientController.list(req, res));
 router.post('/', (req, res) => ingredientController.create(req, res));
 router.patch('/:id', (req, res) => ingredientController.update(req, res));
+router.delete('/:id', (req, res) => ingredientController.remove(req, res));
 
 export default router;

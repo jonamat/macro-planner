@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import type { BoxProps } from '@chakra-ui/react';
 
@@ -15,7 +17,7 @@ interface MealsPanelProps {
   containerProps?: BoxProps;
 }
 
-export function MealsPanel({
+const MealsPanelComponent = ({
   meals,
   loading,
   selectedMealId,
@@ -25,20 +27,20 @@ export function MealsPanel({
   onImportMeals,
   onExportMeals,
   containerProps
-}: MealsPanelProps) {
+}: MealsPanelProps) => {
   return (
     <Box
       {...containerProps}
       bg="white"
-      p={5}
+      p={{ base: 3, md: 5 }}
       borderRadius="md"
       boxShadow="sm"
       w="full"
-      maxH="500px"
-      overflowY="auto"
+      maxH={{ base: 'none', lg: '500px' }}
+      overflowY={{ base: 'visible', lg: 'auto' }}
     >
-      <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={3}>
-        <Heading size="md">Meals</Heading>
+      <Flex justify="space-between" align="center" mb={3} wrap="wrap" gap={2}>
+        <Heading size="sm">Meals</Heading>
         <Flex gap={2} wrap="wrap">
           <Button size="sm" variant="outline" onClick={onExportMeals}>
             Export JSON
@@ -52,26 +54,28 @@ export function MealsPanel({
         </Flex>
       </Flex>
       {loading ? (
-        <Flex justify="center" py={10}>
-          <Text color="gray.500">Loading...</Text>
+        <Flex justify="center" py={8}>
+          <Text color="gray.500" fontSize="sm">
+            Loading...
+          </Text>
         </Flex>
       ) : (
-        <Stack gap={3}>
+        <Stack gap={2}>
           {meals.map((meal) => (
             <Box
               key={meal.id}
               borderWidth="1px"
               borderRadius="md"
-              p={4}
+              p={{ base: 3, md: 4 }}
               bg={meal.id === selectedMealId ? 'teal.50' : 'white'}
               cursor="pointer"
               onClick={() => onSelectMeal(meal.id)}
             >
               <Flex
                 justify="space-between"
-                align={{ base: 'flex-start', sm: 'center' }}
-                direction={{ base: 'column', sm: 'row' }}
-                gap={3}
+                align={{ base: 'flex-start', md: 'center' }}
+                direction={{ base: 'column', md: 'row' }}
+                gap={2}
               >
                 <Box>
                   <Heading size="sm">{meal.name}</Heading>
@@ -94,10 +98,16 @@ export function MealsPanel({
           ))}
 
           {meals.length === 0 && (
-            <Text color="gray.500">No meals yet. Create a meal to define your targets.</Text>
+            <Text color="gray.500" fontSize="sm">
+              No meals yet. Create a meal to define your targets.
+            </Text>
           )}
         </Stack>
       )}
     </Box>
   );
-}
+};
+
+MealsPanelComponent.displayName = 'MealsPanel';
+
+export const MealsPanel = memo(MealsPanelComponent);

@@ -1,6 +1,6 @@
-import { Box, Button, CloseButton, Flex, Heading, IconButton, Input, Stack, Text, chakra } from '@chakra-ui/react';
+import { Box, Button, CloseButton, Flex, Heading, IconButton, Input, SimpleGrid, Stack, Text, chakra } from '@chakra-ui/react';
 import type { BoxProps, IconProps } from '@chakra-ui/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react';
 
 import type { ClientIngredient, IngredientField } from './types';
@@ -24,7 +24,7 @@ interface IngredientListProps {
   loading: boolean;
   saving: boolean;
   onFieldChange: (ingredientId: string, field: IngredientField, value: string) => void;
-  onFieldCommit: (ingredient: ClientIngredient) => void;
+  onFieldCommit: (ingredientId: string, field: IngredientField, value: string) => void;
   onToggleInclude: (ingredientId: string, included: boolean) => void;
   onEdit: (ingredient: ClientIngredient) => void;
   onAddIngredient: () => void;
@@ -34,7 +34,8 @@ interface IngredientListProps {
   onReorder: (sourceId: string, targetId: string | null) => void;
   containerProps?: BoxProps;
 }
-export function IngredientList({
+
+const IngredientListComponent = ({
   ingredients,
   loading,
   saving,
@@ -48,7 +49,7 @@ export function IngredientList({
   onResetIncludes,
   onReorder,
   containerProps
-}: IngredientListProps) {
+}: IngredientListProps) => {
   const [search, setSearch] = useState('');
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(0);
@@ -160,11 +161,15 @@ export function IngredientList({
   };
 
   return (
-    <Box flex="1" bg="white" p={5} borderRadius="md" boxShadow="sm" {...containerProps}>
-      <Flex justify="space-between" mb={4} align="center" wrap="wrap" gap={3}>
-        <Heading size="md">Ingredients</Heading>
+    <Box flex="1" bg="white" p={{ base: 3, md: 5 }} borderRadius="md" boxShadow="sm" {...containerProps}>
+      <Flex justify="space-between" mb={3} align="center" wrap="wrap" gap={2}>
+        <Heading size="sm">Ingredients</Heading>
         <Flex gap={2} wrap="wrap" align="center">
-          {saving && <Text fontSize="sm" color="gray.500">Saving...</Text>}
+          {saving && (
+            <Text fontSize="xs" color="gray.500">
+              Saving...
+            </Text>
+          )}
           <Button size="sm" variant="outline" onClick={onExportIngredients}>
             Export JSON
           </Button>
@@ -179,7 +184,7 @@ export function IngredientList({
           </Button>
         </Flex>
       </Flex>
-      <Box position="relative" mb={4}>
+      <Box position="relative" mb={3}>
         <Input
           ref={searchInputRef}
           placeholder="Search ingredients to include"
@@ -250,11 +255,11 @@ export function IngredientList({
         <Box
           borderWidth="1px"
           borderRadius="md"
-          p={3}
-          mb={4}
+          p={{ base: 3, md: 4 }}
+          mb={3}
           bg="gray.50"
         >
-          <Heading size="sm" mb={2} color="gray.700">
+          <Heading size="xs" mb={2} color="gray.700">
             Selected ingredients
           </Heading>
           <Stack gap={2}>
@@ -264,14 +269,15 @@ export function IngredientList({
               return (
                 <Flex
                   key={`selected-${ingredient.id}`}
-                  align="center"
-                  gap={4}
+                  direction={{ base: 'column', md: 'row' }}
+                  align={{ base: 'flex-start', md: 'center' }}
+                  gap={2}
                   p={2}
                   borderRadius="md"
                   bg="white"
                   borderWidth="1px"
                 >
-                  <Text fontWeight="semibold" minW="150px" style={truncateStyles}>
+                  <Text fontWeight="semibold" minW={{ base: 'auto', md: '140px' }} style={truncateStyles}>
                     {ingredient.name}
                   </Text>
                   <Text color="gray.600" fontSize="sm" flex="1" minW={0} style={truncateStyles}>
@@ -292,8 +298,10 @@ export function IngredientList({
         </Box>
       )}
       {loading ? (
-        <Flex justify="center" py={10}>
-          <Text color="gray.500">Loading...</Text>
+        <Flex justify="center" py={8}>
+          <Text color="gray.500" fontSize="sm">
+            Loading...
+          </Text>
         </Flex>
       ) : (
         <Stack gap={3} onDragOver={handleDragOver} onDrop={handleDropOnList}>
@@ -302,7 +310,7 @@ export function IngredientList({
               key={ingredient.id}
               borderWidth="1px"
               borderRadius="md"
-              p={3}
+              p={{ base: 3, md: 4 }}
               as="article"
               draggable
               onDragStart={(event) => handleDragStart(event, ingredient.id)}
@@ -311,27 +319,33 @@ export function IngredientList({
               cursor="grab"
               data-testid={`ingredient-card-${ingredient.id}`}
             >
-              <Flex align="center" gap={3} wrap="wrap">
-                <CheckboxInput
-                  type="checkbox"
-                  checked={ingredient.included}
-                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                    onToggleInclude(ingredient.id, event.currentTarget.checked)
-                  }
-                  aria-label={`Include ${ingredient.name}`}
-                  flexShrink={0}
-                  width="16px"
-                  height="16px"
-                />
-                <Box minW="180px" flexShrink={0} py={1}>
-                  <Heading size="sm">{ingredient.name}</Heading>
-                  <Text color="gray.600" fontSize="xs">
-                    {ingredient.carbo100g}g carbs • {ingredient.protein100g}g protein • {ingredient.fat100g}g fat • indivisible: {ingredient.indivisible ?? 'n/a'}g
-                  </Text>
-                </Box>
-                <Flex gap={3} wrap="wrap" flex="1" justify="end">
+              <Stack
+                direction={{ base: 'column', lg: 'row' }}
+                align={{ base: 'flex-start', lg: 'center' }}
+                gap={{ base: 3, lg: 4 }}
+              >
+                <Flex align="center" gap={3} w={{ base: 'full', lg: 'auto' }}>
+                  <CheckboxInput
+                    type="checkbox"
+                    checked={ingredient.included}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                      onToggleInclude(ingredient.id, event.currentTarget.checked)
+                    }
+                    aria-label={`Include ${ingredient.name}`}
+                    flexShrink={0}
+                    width="16px"
+                    height="16px"
+                  />
+                  <Box minW={{ base: 'auto', md: '160px' }} flexShrink={0} py={1}>
+                    <Heading size="sm">{ingredient.name}</Heading>
+                    <Text color="gray.600" fontSize="xs">
+                      {ingredient.carbo100g}g carbs • {ingredient.protein100g}g protein • {ingredient.fat100g}g fat • indivisible: {ingredient.indivisible ?? 'n/a'}g
+                    </Text>
+                  </Box>
+                </Flex>
+                <SimpleGrid columns={{ base: 1, sm: 3 }} gap={3} flex="1" w="full">
                   {(['min', 'max', 'mandatory'] as IngredientField[]).map((field) => (
-                    <Box key={field} minW="110px">
+                    <Box key={field}>
                       <Label
                         htmlFor={`${ingredient.id}-${field}`}
                         display="block"
@@ -347,17 +361,20 @@ export function IngredientList({
                         type="number"
                         value={ingredient[field] ?? ''}
                         onChange={(event) => onFieldChange(ingredient.id, field, event.currentTarget.value)}
-                        onBlur={() => onFieldCommit(ingredient)}
+                        onBlur={(event) =>
+                          onFieldCommit(ingredient.id, field, event.currentTarget.value)
+                        }
                         bg="gray.50"
                         size="sm"
                       />
                     </Box>
                   ))}
-                </Flex>
+                </SimpleGrid>
                 <IconButton
                   aria-label={`Edit ${ingredient.name}`}
                   size="sm"
                   variant="ghost"
+                  alignSelf={{ base: 'flex-start', lg: 'center' }}
                   onClick={(event) => {
                     event.stopPropagation();
                     onEdit(ingredient);
@@ -365,7 +382,7 @@ export function IngredientList({
                 >
                   <PencilIcon />
                 </IconButton>
-              </Flex>
+              </Stack>
             </Box>
           ))}
           {ingredients.length === 0 && (
@@ -375,4 +392,8 @@ export function IngredientList({
       )}
     </Box>
   );
-}
+};
+
+IngredientListComponent.displayName = 'IngredientList';
+
+export const IngredientList = memo(IngredientListComponent);

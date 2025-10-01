@@ -31,7 +31,7 @@ describe('ensureDatabaseUrl', () => {
       require('../prisma');
     });
 
-    expect(process.env.DATABASE_URL).toBe(defaultDbUrl);
+    expect(process.env.DATABASE_URL).toBe(`file:${defaultDbPath}`);
     expect(fs.existsSync(defaultDbDir)).toBe(true);
     expect(fs.existsSync(defaultDbPath)).toBe(true);
   });
@@ -51,7 +51,7 @@ describe('ensureDatabaseUrl', () => {
       ensureDatabaseUrl();
     });
 
-    expect(process.env.DATABASE_URL).toBe(`file:${relativePath}`);
+    expect(process.env.DATABASE_URL).toBe(`file:${absolutePath}`);
     expect(fs.existsSync(targetDir)).toBe(true);
     expect(fs.existsSync(absolutePath)).toBe(true);
 

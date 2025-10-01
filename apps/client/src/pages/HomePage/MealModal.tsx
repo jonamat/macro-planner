@@ -20,9 +20,20 @@ interface MealModalProps {
   onClose: () => void;
   onSubmit: (values: MealModalValues) => void;
   initialValues?: MealModalValues | undefined;
+  onDelete?: () => void;
+  isDeleting?: boolean;
 }
 
-export function MealModal({ open, title, isSubmitting, onClose, onSubmit, initialValues }: MealModalProps) {
+export function MealModal({
+  open,
+  title,
+  isSubmitting,
+  onClose,
+  onSubmit,
+  initialValues,
+  onDelete,
+  isDeleting
+}: MealModalProps) {
   const [form, setForm] = useState<MealModalValues>(initialValues ?? emptyForm);
 
   useEffect(() => {
@@ -43,6 +54,7 @@ export function MealModal({ open, title, isSubmitting, onClose, onSubmit, initia
       onClose={onClose}
       onSubmit={() => onSubmit(form)}
       isSubmitting={isSubmitting}
+      {...(onDelete ? { onDelete, isDeleting } : {})}
     >
       <Stack gap={4}>
         <Box>

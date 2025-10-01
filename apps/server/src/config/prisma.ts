@@ -56,6 +56,11 @@ export function ensureDatabaseUrl() {
 
   ensureDatabaseDirectory(process.env.DATABASE_URL);
   ensureDatabaseFile(process.env.DATABASE_URL);
+
+  if (process.env.DATABASE_URL?.startsWith('file:')) {
+    const absolutePath = toAbsolutePath(process.env.DATABASE_URL);
+    process.env.DATABASE_URL = `file:${absolutePath}`;
+  }
 }
 
 ensureDatabaseUrl();

@@ -11,9 +11,22 @@ interface SimpleModalProps {
   onSubmit: () => void;
   isSubmitting: boolean;
   children: ReactNode;
+  onDelete?: (() => void) | undefined;
+  isDeleting?: boolean;
+  deleteLabel?: string;
 }
 
-export function SimpleModal({ open, title, onClose, onSubmit, isSubmitting, children }: SimpleModalProps) {
+export function SimpleModal({
+  open,
+  title,
+  onClose,
+  onSubmit,
+  isSubmitting,
+  children,
+  onDelete,
+  isDeleting,
+  deleteLabel
+}: SimpleModalProps) {
   if (!open) return null;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -49,7 +62,18 @@ export function SimpleModal({ open, title, onClose, onSubmit, isSubmitting, chil
         </Flex>
         <FormEl onSubmit={handleSubmit} display="flex" flexDirection="column" gap={5}>
           {children}
-          <Flex justify="flex-end" gap={3}>
+          <Flex justify="flex-end" gap={3} wrap="wrap">
+            {onDelete && (
+              <Button
+                variant="outline"
+                colorScheme="red"
+                onClick={onDelete}
+                loading={isDeleting}
+                mr="auto"
+              >
+                {deleteLabel ?? 'Delete'}
+              </Button>
+            )}
             <Button variant="ghost" onClick={onClose}>
               Cancel
             </Button>

@@ -68,6 +68,30 @@ class MealController {
       return res.status(500).json({ message: 'Unexpected server error' });
     }
   }
+
+  async remove(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ message: 'Meal id is required' });
+      }
+
+      await mealService.delete(userId, id);
+      return res.status(204).send();
+    } catch (error) {
+      if (isHttpError(error)) {
+        return res.status(error.status).json({ message: error.message });
+      }
+
+      console.error('MealController.remove', error);
+      return res.status(500).json({ message: 'Unexpected server error' });
+    }
+  }
 }
 
 export default new MealController();

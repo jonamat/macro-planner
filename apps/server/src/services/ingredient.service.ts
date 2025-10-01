@@ -67,6 +67,18 @@ export class IngredientService {
     return this.toApi(ingredient);
   }
 
+  async delete(userId: string, ingredientId: string) {
+    const existing = await prisma.ingredient.findFirst({
+      where: { id: ingredientId, userId }
+    });
+
+    if (!existing) {
+      throw new HttpError(404, 'Ingredient not found');
+    }
+
+    await prisma.ingredient.delete({ where: { id: ingredientId } });
+  }
+
   private validateRanges(input: Pick<Partial<CreateIngredientInput>, 'min' | 'max' | 'mandatory'>) {
     const hasMin = typeof input.min === 'number';
     const hasMax = typeof input.max === 'number';

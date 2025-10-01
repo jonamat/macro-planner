@@ -79,6 +79,16 @@ export async function updateIngredient(token: string, id: string, input: Partial
   return result.data;
 }
 
+export async function deleteIngredient(token: string, id: string) {
+  await request<unknown>(
+    `/ingredients/${id}`,
+    {
+      method: 'DELETE'
+    },
+    token
+  );
+}
+
 export async function fetchMeals(token: string) {
   const result = await request<{ data: ApiMeal[] }>('/meals', {}, token);
   return result.data;
@@ -106,6 +116,16 @@ export async function updateMeal(token: string, id: string, input: Partial<ApiMe
     token
   );
   return result.data;
+}
+
+export async function deleteMeal(token: string, id: string) {
+  await request<unknown>(
+    `/meals/${id}`,
+    {
+      method: 'DELETE'
+    },
+    token
+  );
 }
 
 export function targetFromMeal(meal: ApiMeal): MacroTarget {

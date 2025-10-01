@@ -24,6 +24,8 @@ interface IngredientModalProps {
   onClose: () => void;
   onSubmit: (values: IngredientModalValues) => void;
   initialValues?: IngredientModalValues | undefined;
+  onDelete?: () => void;
+  isDeleting?: boolean;
 }
 
 export function IngredientModal({
@@ -32,7 +34,9 @@ export function IngredientModal({
   isSubmitting,
   onClose,
   onSubmit,
-  initialValues
+  initialValues,
+  onDelete,
+  isDeleting
 }: IngredientModalProps) {
   const [form, setForm] = useState<IngredientModalValues>(initialValues ?? emptyForm);
 
@@ -54,6 +58,7 @@ export function IngredientModal({
       onClose={onClose}
       onSubmit={() => onSubmit(form)}
       isSubmitting={isSubmitting}
+      {...(onDelete ? { onDelete, isDeleting } : {})}
     >
       <Stack gap={4}>
         <Box>

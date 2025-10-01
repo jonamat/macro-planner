@@ -7,6 +7,7 @@ jest.mock('../../config/prisma', () => {
     create: jest.fn(),
     findFirst: jest.fn(),
     update: jest.fn(),
+    delete: jest.fn(),
     aggregate: jest.fn()
   };
 
@@ -23,6 +24,7 @@ const prisma = jest.requireMock('../../config/prisma').default as {
     create: jest.Mock;
     findFirst: jest.Mock;
     update: jest.Mock;
+    delete: jest.Mock;
     aggregate: jest.Mock;
   };
 };
@@ -136,5 +138,20 @@ describe('IngredientService', () => {
     expect(result.min).toBeNull();
     expect(result.mandatory).toBeNull();
     expect(result.sequence).toBe(1);
+  });
+
+  it('deletes ingredient when it exists', async () => {
+    prisma.ingredient.findFirst.mockResolvedValue({ id: 'ing-1', userId: 'user-1' });
+
+    await ingredientService.delete('user-1', 'ing-1');
+
+    expect(prisma.ingredient.delete).toHaveBeenCalledWith({ where: { id: 'ing-1' } });
+  });
+
+  it('throws when deleting missing ingredient', async () => {
+    prisma.ingredient.findFirst.mockResolvedValue(null);
+
+    await expect(ingredientService.delete('user-1', 'missing')).rejects.toBeInstanceOf(HttpError);
+    expect(prisma.ingredient.delete).not.toHaveBeenCalled();
   });
 });

@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "noEmit": true,
     "allowJs": false,
     "resolveJsonModule": true,
@@ -11,7 +11,10 @@
     "baseUrl": "src",
     "paths": {
       "@macro-calculator/shared": [
-        "../../packages/shared/src"
+        "../../../packages/shared/src/index.ts"
+      ],
+      "@macro-calculator/shared/*": [
+        "../../../packages/shared/src/*"
       ]
     },
     "lib": [

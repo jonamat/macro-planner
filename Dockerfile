@@ -41,6 +41,8 @@ RUN yarn install --frozen-lockfile --production --non-interactive && yarn cache 
 COPY --from=backend-build /workspace/apps/server/dist ./apps/server/dist
 COPY --from=backend-build /workspace/packages/shared/dist ./packages/shared/dist
 COPY --from=frontend-build /workspace/apps/client/dist ./apps/client/dist
+COPY --from=frontend-build /workspace/apps/client/public/manifest.webmanifest ./apps/client/dist/manifest.webmanifest
+COPY --from=frontend-build /workspace/apps/client/public/icons ./apps/client/dist/icons
 COPY prisma ./prisma
 
 RUN npx prisma generate --schema prisma/schema.prisma

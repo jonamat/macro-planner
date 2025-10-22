@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import { BrowserRouter } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 
 import App from "./App";
 import { AuthProvider } from "./providers/AuthProvider";
+import { theme } from "./theme";
 
 const root = document.getElementById("root");
 
@@ -15,7 +15,7 @@ if (!root) {
 
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <ChakraProvider value={defaultSystem}>
+    <ChakraProvider value={theme}>
       <AuthProvider>
         <BrowserRouter>
 

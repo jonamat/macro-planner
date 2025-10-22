@@ -18,7 +18,6 @@ export interface ApiIngredient {
   max: number | null;
   mandatory: number | null;
   indivisible: number | null;
-  sequence: number;
 }
 
 export interface ApiMeal {

@@ -1,11 +1,15 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+import { AppLayout } from './components/AppLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { MacroDataProvider } from './features/macro/MacroDataProvider';
 import { useAuth } from './providers/AuthProvider';
 import HomePage from './pages/HomePage';
+import IngredientsPage from './pages/IngredientsPage';
 import LoginPage from './pages/LoginPage';
+import MealsPage from './pages/MealsPage';
 import SignupPage from './pages/SignupPage';
-import { ToastContainer } from 'react-toastify';
+import InfoPage from './pages/InfoPage';
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -24,10 +28,17 @@ function App() {
         path="/"
         element={
           <ProtectedRoute>
-            <HomePage />
+            <MacroDataProvider>
+              <AppLayout />
+            </MacroDataProvider>
           </ProtectedRoute>
         }
-      />
+      >
+        <Route index element={<HomePage />} />
+        <Route path="meals" element={<MealsPage />} />
+        <Route path="ingredients" element={<IngredientsPage />} />
+        <Route path="info" element={<InfoPage />} />
+      </Route>
       <Route
         path="*"
         element={<Navigate to={isAuthenticated ? '/' : '/login'} replace />}

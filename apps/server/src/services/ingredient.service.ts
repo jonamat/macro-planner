@@ -6,15 +6,17 @@ export class IngredientService {
   async list(userId: string) {
     const ingredients = await prisma.ingredient.findMany({
       where: { userId },
-      orderBy: [{ sequence: 'asc' }, { createdAt: 'asc' }]
+      orderBy: { name: 'asc' }
     });
     return ingredients.map(this.toApi);
   }
 
   async create(userId: string, input: CreateIngredientInput) {
-    this.validateRanges(input);
+    const normalizedMin = input.min ?? null;
+    const normalizedMax = this.normalizeMax(input.max);
+    const normalizedMandatory = input.mandatory ?? null;
 
-    const sequence = await this.resolveSequence(userId, input.sequence);
+    this.validateRanges({ min: normalizedMin, max: normalizedMax, mandatory: normalizedMandatory });
 
     const ingredient = await prisma.ingredient.create({
       data: {
@@ -22,11 +24,10 @@ export class IngredientService {
         carbo100g: input.carbo100g,
         protein100g: input.protein100g,
         fat100g: input.fat100g,
-        min: input.min ?? null,
-        max: input.max ?? null,
-        mandatory: input.mandatory ?? null,
+        min: normalizedMin,
+        max: normalizedMax,
+        mandatory: normalizedMandatory,
         indivisible: input.indivisible ?? null,
-        sequence,
         userId
       }
     });
@@ -34,8 +35,6 @@ export class IngredientService {
   }
 
   async update(userId: string, ingredientId: string, input: UpdateIngredientInput) {
-    this.validateRanges(input);
-
     const existing = await prisma.ingredient.findFirst({
       where: { id: ingredientId, userId }
     });
@@ -44,10 +43,13 @@ export class IngredientService {
       throw new HttpError(404, 'Ingredient not found');
     }
 
-    const sequence =
-      input.sequence !== undefined
-        ? input.sequence
-        : existing.sequence;
+    const nextMin = input.min !== undefined ? input.min : existing.min;
+    const maxProvided = input.max !== undefined;
+    const nextMax = maxProvided ? this.normalizeMax(input.max) : existing.max;
+    const nextMandatory =
+      input.mandatory !== undefined ? input.mandatory : existing.mandatory;
+
+    this.validateRanges({ min: nextMin, max: nextMax, mandatory: nextMandatory });
 
     const ingredient = await prisma.ingredient.update({
       where: { id: ingredientId },
@@ -56,11 +58,10 @@ export class IngredientService {
         carbo100g: input.carbo100g ?? existing.carbo100g,
         protein100g: input.protein100g ?? existing.protein100g,
         fat100g: input.fat100g ?? existing.fat100g,
-        min: input.min !== undefined ? input.min : existing.min,
-        max: input.max !== undefined ? input.max : existing.max,
-        mandatory: input.mandatory !== undefined ? input.mandatory : existing.mandatory,
-        indivisible: input.indivisible !== undefined ? input.indivisible : existing.indivisible,
-        sequence
+        min: input.min !== undefined ? nextMin : existing.min,
+        max: maxProvided ? nextMax : existing.max,
+        mandatory: input.mandatory !== undefined ? nextMandatory : existing.mandatory,
+        indivisible: input.indivisible !== undefined ? input.indivisible : existing.indivisible
       }
     });
 
@@ -78,37 +79,33 @@ export class IngredientService {
 
     await prisma.ingredient.delete({ where: { id: ingredientId } });
   }
+  private validateRanges(input: { min: number | null | undefined; max: number | null | undefined; mandatory: number | null | undefined }) {
+    const minValue = typeof input.min === 'number' ? input.min : undefined;
+    const maxValue = typeof input.max === 'number' ? input.max : undefined;
 
-  private validateRanges(input: Pick<Partial<CreateIngredientInput>, 'min' | 'max' | 'mandatory'>) {
-    const hasMin = typeof input.min === 'number';
-    const hasMax = typeof input.max === 'number';
-
-    if (hasMin && hasMax && (input.max ?? 0) < (input.min ?? 0)) {
+    if (minValue !== undefined && maxValue !== undefined && maxValue < minValue) {
       throw new HttpError(400, 'Max must be greater than or equal to min');
     }
 
-    const hasMandatory = typeof input.mandatory === 'number';
-    if (hasMandatory) {
-      if (hasMin && (input.mandatory ?? 0) < (input.min ?? 0)) {
+    const mandatoryValue = typeof input.mandatory === 'number' ? input.mandatory : undefined;
+    if (mandatoryValue !== undefined) {
+      if (minValue !== undefined && mandatoryValue < minValue) {
         throw new HttpError(400, 'Mandatory amount cannot be less than min');
       }
-      if (hasMax && (input.mandatory ?? 0) > (input.max ?? 0)) {
+      if (maxValue !== undefined && mandatoryValue > maxValue) {
         throw new HttpError(400, 'Mandatory amount cannot exceed max');
       }
     }
   }
 
-  private async resolveSequence(userId: string, provided?: number) {
-    if (provided !== undefined) {
-      return provided;
+  private normalizeMax(value: number | null | undefined): number | null {
+    if (value === null || value === undefined) {
+      return null;
     }
-
-    const maxSequence = await prisma.ingredient.aggregate({
-      where: { userId },
-      _max: { sequence: true }
-    });
-
-    return (maxSequence._max.sequence ?? -1) + 1;
+    if (value <= 0) {
+      return null;
+    }
+    return value;
   }
 
   private toApi(record: {
@@ -121,7 +118,6 @@ export class IngredientService {
     max: number | null;
     mandatory: number | null;
     indivisible: number | null;
-    sequence: number;
   }) {
     return {
       id: record.id,
@@ -132,8 +128,7 @@ export class IngredientService {
       min: record.min,
       max: record.max,
       mandatory: record.mandatory,
-      indivisible: record.indivisible,
-      sequence: record.sequence
+      indivisible: record.indivisible
     };
   }
 }

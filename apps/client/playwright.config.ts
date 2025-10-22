@@ -16,10 +16,12 @@ const tempDbFileName = `playwright-db-${process.pid}-${Date.now()}.sqlite`;
 const tempDbRelativePosix = path.posix.join('tmp', tempDbFileName);
 const tempDbFile = path.join(repoRoot, tempDbRelativePosix);
 const tempDbUrl = `file:${tempDbFile}`;
+const serverPort = 4100;
 
 const migrationSteps = [
   '20240814000000_init/migration.sql',
-  '20250929100931_add_sequence_to_ingredients/migration.sql'
+  '20250929100931_add_sequence_to_ingredients/migration.sql',
+  '20251001090000_remove_sequence_from_ingredient/migration.sql'
 ];
 
 const dbBootstrapCommand = [
@@ -29,7 +31,7 @@ const dbBootstrapCommand = [
   ...migrationSteps.map(
     (migration) => `sqlite3 "$DB_FILE" ".read prisma/migrations/${migration}"`
   ),
-  `DATABASE_URL="${tempDbUrl}" JWT_SECRET="test-secret" SERVER_PORT=4000 yarn dev`
+  `DATABASE_URL="${tempDbUrl}" JWT_SECRET="test-secret" SERVER_PORT=${serverPort} yarn dev`
 ].join(' && ');
 
 export default defineConfig({
@@ -50,7 +52,7 @@ export default defineConfig({
       ...process.env,
       DATABASE_URL: tempDbUrl,
       JWT_SECRET: 'test-secret',
-      SERVER_PORT: '4000',
+      SERVER_PORT: String(serverPort),
       PORT: '5173'
     }
   },

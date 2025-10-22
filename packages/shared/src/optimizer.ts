@@ -17,7 +17,6 @@ export interface MacroTarget {
 export type Ingredients = Array<IngredientData>;
 export interface IngredientData {
   name: string;
-  sequence?: number;
   min?: number;         // base floor in grams if defined
   max?: number;         // available grams
   mandatory?: number;   // hard-required grams if defined

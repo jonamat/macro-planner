@@ -28,8 +28,10 @@ class AuthController {
 
   private handleError(res: Response, error: unknown, context: string) {
     if (error instanceof ZodError) {
+      const primaryMessage =
+        error.issues[0]?.message ?? 'Invalid request body';
       return res.status(400).json({
-        message: 'Invalid request body',
+        message: primaryMessage,
         issues: error.issues
       });
     }

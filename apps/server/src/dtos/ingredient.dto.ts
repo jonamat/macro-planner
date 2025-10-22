@@ -8,13 +8,6 @@ const optionalFloat = z
   }, z.union([z.coerce.number().min(0), z.null()]))
   .optional();
 
-const optionalSequence = z
-  .preprocess((value) => {
-    if (value === '' || value === undefined) return undefined;
-    return value;
-  }, z.coerce.number().int().min(0))
-  .optional();
-
 export const createIngredientSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   carbo100g: z.coerce.number().min(0),
@@ -23,8 +16,7 @@ export const createIngredientSchema = z.object({
   min: optionalFloat,
   max: optionalFloat,
   mandatory: optionalFloat,
-  indivisible: optionalFloat,
-  sequence: optionalSequence
+  indivisible: optionalFloat
 });
 
 export const updateIngredientSchema = createIngredientSchema.partial().refine(

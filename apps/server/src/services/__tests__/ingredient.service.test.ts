@@ -50,7 +50,6 @@ describe('IngredientService', () => {
   });
 
   it('creates ingredient with sanitized data', async () => {
-    prisma.ingredient.aggregate.mockResolvedValue({ _max: { sequence: 3 } });
     prisma.ingredient.create.mockResolvedValue({
       id: 'ing-1',
       name: 'Chicken',
@@ -60,8 +59,7 @@ describe('IngredientService', () => {
       min: null,
       max: null,
       mandatory: null,
-      indivisible: null,
-      sequence: 4
+      indivisible: null
     });
 
     const result = await ingredientService.create('user-1', {
@@ -81,7 +79,6 @@ describe('IngredientService', () => {
         max: null,
         mandatory: null,
         indivisible: null,
-        sequence: 4,
         userId: 'user-1'
       }
     });
@@ -95,9 +92,37 @@ describe('IngredientService', () => {
       min: null,
       max: null,
       mandatory: null,
-      indivisible: null,
-      sequence: 4
+      indivisible: null
     });
+  });
+
+  it('treats max zero as unset when validating mandatory', async () => {
+    prisma.ingredient.create.mockResolvedValue({
+      id: 'ing-2',
+      name: 'Rice',
+      carbo100g: 80,
+      protein100g: 6,
+      fat100g: 1,
+      min: null,
+      max: null,
+      mandatory: 50,
+      indivisible: null
+    });
+
+    const result = await ingredientService.create('user-1', {
+      name: 'Rice',
+      carbo100g: 80,
+      protein100g: 6,
+      fat100g: 1,
+      max: 0,
+      mandatory: 50
+    });
+
+    expect(prisma.ingredient.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ max: null, mandatory: 50 })
+    });
+    expect(result.max).toBeNull();
+    expect(result.mandatory).toBe(50);
   });
 
   it('updates ingredient and allows clearing optional fields', async () => {
@@ -111,8 +136,7 @@ describe('IngredientService', () => {
       max: 100,
       mandatory: 20,
       indivisible: null,
-      userId: 'user-1',
-      sequence: 2
+      userId: 'user-1'
     });
 
     prisma.ingredient.update.mockResolvedValue({
@@ -124,20 +148,54 @@ describe('IngredientService', () => {
       min: null,
       max: 100,
       mandatory: null,
-      indivisible: null,
-      sequence: 1
+      indivisible: null
     });
 
-    const result = await ingredientService.update('user-1', 'ing-1', { min: null, mandatory: null, sequence: 1 });
+    const result = await ingredientService.update('user-1', 'ing-1', { min: null, mandatory: null });
 
     expect(prisma.ingredient.update).toHaveBeenCalledWith({
       where: { id: 'ing-1' },
-      data: expect.objectContaining({ min: null, mandatory: null, sequence: 1 })
+      data: expect.objectContaining({ min: null, mandatory: null })
     });
 
     expect(result.min).toBeNull();
     expect(result.mandatory).toBeNull();
-    expect(result.sequence).toBe(1);
+  });
+
+  it('ignores max zero on update when evaluating mandatory', async () => {
+    prisma.ingredient.findFirst.mockResolvedValue({
+      id: 'ing-2',
+      name: 'Beans',
+      carbo100g: 40,
+      protein100g: 25,
+      fat100g: 5,
+      min: null,
+      max: null,
+      mandatory: null,
+      indivisible: null,
+      userId: 'user-1'
+    });
+
+    prisma.ingredient.update.mockResolvedValue({
+      id: 'ing-2',
+      name: 'Beans',
+      carbo100g: 40,
+      protein100g: 25,
+      fat100g: 5,
+      min: null,
+      max: null,
+      mandatory: 30,
+      indivisible: null
+    });
+
+    const result = await ingredientService.update('user-1', 'ing-2', { max: 0, mandatory: 30 });
+
+    expect(prisma.ingredient.update).toHaveBeenCalledWith({
+      where: { id: 'ing-2' },
+      data: expect.objectContaining({ max: null, mandatory: 30 })
+    });
+    expect(result.max).toBeNull();
+    expect(result.mandatory).toBe(30);
   });
 
   it('deletes ingredient when it exists', async () => {

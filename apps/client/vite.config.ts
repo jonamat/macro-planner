@@ -22,6 +22,8 @@ const env = dotenv.config({
   path: envPath || path.resolve(__dirname, "../../../.env"),
 });
 
+const serverPort = process.env.SERVER_PORT || env.parsed?.SERVER_PORT || "4000";
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -36,7 +38,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: `http://localhost:${env.parsed?.SERVER_PORT ?? 4000}`,
+        target: `http://localhost:${serverPort}`,
         changeOrigin: true,
       },
     },

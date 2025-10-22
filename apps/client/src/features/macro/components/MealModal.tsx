@@ -1,7 +1,7 @@
 import { Box, Input, Stack, chakra } from '@chakra-ui/react';
 import { ChangeEvent, useEffect, useState } from 'react';
 
-import type { MealModalValues } from './types';
+import type { MealModalValues } from '../types';
 import { SimpleModal } from './SimpleModal';
 
 const Label = chakra('label');
@@ -40,7 +40,7 @@ export function MealModal({
     if (open) {
       setForm(initialValues ?? emptyForm);
     }
-  }, [open, initialValues]);
+  }, [initialValues, open]);
 
   const handleChange = (field: keyof MealModalValues) => (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
@@ -58,25 +58,35 @@ export function MealModal({
     >
       <Stack gap={4}>
         <Box>
-          <Label htmlFor="meal-name" display="block" fontWeight="semibold" mb={1}>
-            Name
+          <Label htmlFor="meal-name" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
+            Meal name
           </Label>
-          <Input id="meal-name" value={form.name} onChange={handleChange('name')} />
+          <Input
+            id="meal-name"
+            value={form.name}
+            onChange={handleChange('name')}
+            bg="app.surfaceMuted"
+            borderColor="whiteAlpha.200"
+            _focusVisible={{ borderColor: 'app.accent', boxShadow: '0 0 0 1px rgba(94, 234, 212, 0.35)' }}
+          />
         </Box>
-        <Stack direction={{ base: 'column', sm: 'row' }} gap={4}>
+        <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
           <Box flex="1">
-            <Label htmlFor="meal-carbo" display="block" fontWeight="semibold" mb={1}>
+            <Label htmlFor="meal-carbs" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
               Carbs (g)
             </Label>
             <Input
-              id="meal-carbo"
+              id="meal-carbs"
               type="number"
               value={form.carbo}
               onChange={handleChange('carbo')}
+              bg="app.surfaceMuted"
+              borderColor="whiteAlpha.200"
+              _focusVisible={{ borderColor: 'app.accent', boxShadow: '0 0 0 1px rgba(94, 234, 212, 0.35)' }}
             />
           </Box>
           <Box flex="1">
-            <Label htmlFor="meal-protein" display="block" fontWeight="semibold" mb={1}>
+            <Label htmlFor="meal-protein" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
               Protein (g)
             </Label>
             <Input
@@ -84,13 +94,24 @@ export function MealModal({
               type="number"
               value={form.protein}
               onChange={handleChange('protein')}
+              bg="app.surfaceMuted"
+              borderColor="whiteAlpha.200"
+              _focusVisible={{ borderColor: 'app.accent', boxShadow: '0 0 0 1px rgba(94, 234, 212, 0.35)' }}
             />
           </Box>
           <Box flex="1">
-            <Label htmlFor="meal-fat" display="block" fontWeight="semibold" mb={1}>
+            <Label htmlFor="meal-fat" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
               Fat (g)
             </Label>
-            <Input id="meal-fat" type="number" value={form.fat} onChange={handleChange('fat')} />
+            <Input
+              id="meal-fat"
+              type="number"
+              value={form.fat}
+              onChange={handleChange('fat')}
+              bg="app.surfaceMuted"
+              borderColor="whiteAlpha.200"
+              _focusVisible={{ borderColor: 'app.accent', boxShadow: '0 0 0 1px rgba(94, 234, 212, 0.35)' }}
+            />
           </Box>
         </Stack>
       </Stack>

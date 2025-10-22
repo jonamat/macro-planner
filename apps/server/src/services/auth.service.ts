@@ -50,7 +50,7 @@ export class AuthService {
   }
 
   private buildAuthResponse(user: AuthUser) {
-    const token = jwt.sign({ userId: user.id }, env.jwtSecret, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id }, env.jwtSecret);
 
     return {
       token,

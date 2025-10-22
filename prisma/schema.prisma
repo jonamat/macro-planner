@@ -20,7 +20,6 @@ model User {
 model Ingredient {
   id           String   @id @default(uuid())
   name         String
-  sequence     Int      @default(0)
   min          Float?
   max          Float?
   mandatory    Float?

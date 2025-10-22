@@ -1,9 +1,11 @@
-# Macro Calculator
+# Jonamat macro planner
 
-Macro Calculator is a full-stack meal-planning companion that stores your favourite ingredients, tracks macro targets per meal, and uses an optimisation engine to balance ingredient quantities against those goals.
+Try it live: [https://macroplanner.jmat.it/](https://macroplanner.jmat.it/)
+
+Macro planner is a full-stack meal-planning companion that stores your favorite ingredients, tracks macro targets per meal, and uses an optimization engine to balance ingredient quantities against those goals.
 
 > **Disclaimer**  
-> This planner is not a medical tool, and the author does not accept responsibility for the results. Use it to keep eating what you enjoy—just calibrate ingredient weights so they line up with your personalised plan. Craft that plan with guidance from a licensed nutritionist, a trustworthy online calculator, or AI tools such as ChatGPT.
+> This planner is not a medical tool, and the author does not accept responsibility for the results. Use it to keep eating what you enjoy—just calibrate ingredient weights so they line up with your personalized plan. Craft that plan with guidance from a licensed nutritionist, a trustworthy online calculator, or fine-tuned AI tool.
 
 ## Highlights
 
@@ -13,11 +15,18 @@ Macro Calculator is a full-stack meal-planning companion that stores your favour
 - Responsive React UI built with Chakra UI, React Router, and React Toastify, including import/export helpers for sharing plans as JSON.
 - First-time onboarding copy (Info page) plus guarded routes using a lightweight auth provider that persists JWTs in local storage.
 
+## Core Workflows
+
+- **Create macro targets** on the Meals page, specifying grams of carbohydrates, protein, and fat per meal. Targets are scoped to the signed-in user.
+- **Build an ingredient catalogue from your kitchen** with optional minimum/maximum grams, mandatory weights, and indivisible steps (useful for packaged foods that only come in fixed increments).
+- **Optimize meals** from the home dashboard. Toggle the ingredients you want to include, fine-tune their constraints, and trigger the solver to generate gram weights, macro totals, and deviation indicators.
+- **Review, export, and iterate** using Results cards. Export meals or ingredients as JSON for backups or sharing, then re-import them from the modals when needed.
+
 ## Monorepo At A Glance
 
 - `apps/client` – Vite + React SPA that drives the macro planner experience.
 - `apps/server` – Express API with JWT authentication, Prisma ORM, and static serving of the client build.
-- `packages/shared` – Reusable optimisation logic and shared TypeScript types consumed by both server and client.
+- `packages/shared` – Reusable optimization logic and shared TypeScript types consumed by both server and client.
 
 ## Getting Started
 
@@ -56,12 +65,6 @@ Common alternatives:
 - Client only: `yarn dev:client`
 - Shared package watch: `yarn workspace @macro-calculator/shared dev`
 
-## Core Workflows
-
-- **Create macro targets** on the Meals page, specifying grams of carbohydrates, protein, and fat per meal. Targets are scoped to the signed-in user.
-- **Build an ingredient catalogue** with optional minimum/maximum grams, mandatory weights, and indivisible steps (useful for packaged foods that only come in fixed increments).
-- **Optimise meals** from the home dashboard. Toggle the ingredients you want to include, fine-tune their constraints, and trigger the solver to generate gram weights, macro totals, and deviation indicators.
-- **Review, export, and iterate** using Results cards. Export meals or ingredients as JSON for backups or sharing, then re-import them from the modals when needed.
 
 ## API Overview
 

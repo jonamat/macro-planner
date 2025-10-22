@@ -1,0 +1,17 @@
+{
+  "name": "Macro Planner",
+  "short_name": "Macro Planner",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f111a",
+  "theme_color": "#0f111a",
+  "description": "Plan balanced meals, track ingredients, and optimize macros on the go.",
+  "icons": [
+    {
+      "src": "/icons/macro-planner-logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}

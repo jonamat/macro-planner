@@ -72,10 +72,12 @@ export function AppLayout() {
 
             <Flex align="center" gap={3} w={{ base: 'full', md: 'auto' }} justify={{ base: 'stretch', md: 'flex-end' }}>
               <Button
-                variant="outline"
-                colorScheme="teal"
-                borderColor="whiteAlpha.300"
-                _hover={{ bg: 'whiteAlpha.100' }}
+                bg="#5eead4"
+                color="#0f111a"
+                fontWeight="semibold"
+                _hover={{ bg: '#5eead4', transform: 'translateY(-1px)', boxShadow: '0 10px 22px rgba(94, 234, 212, 0.25)' }}
+                _focusVisible={{ boxShadow: '0 0 0 3px rgba(94, 234, 212, 0.45)' }}
+                _active={{ bg: '#34d9c1' }}
                 onClick={() => {
                   clearError();
                   logout();

@@ -14,10 +14,10 @@ export function AppFooter() {
         <Flex direction={{ base: 'column', md: 'row' }} align={{ base: 'flex-start', md: 'center' }} justify="space-between" gap={6}>
           <Stack gap={1}>
             <Text fontSize="sm" color="rgba(245, 247, 255, 0.75)">
-              Crafted with macros in mind · © {new Date().getFullYear()}
+              Crafted just for me, but take it · © {new Date().getFullYear()}
             </Text>
             <Text fontSize="xs" color="rgba(148, 197, 255, 0.7)">
-              Placeholder credits · swap me with your name or team later on.
+              Jonamat Macro planner · MIT Licensed
             </Text>
           </Stack>
 
@@ -31,7 +31,7 @@ export function AppFooter() {
               Info &amp; Usage
             </Link>
             <Link
-              href="https://github.com/example/macro-planner"
+              href="https://github.com/jonamat/macro-planner"
               target="_blank"
               rel="noreferrer"
               fontSize="sm"
@@ -39,14 +39,6 @@ export function AppFooter() {
               _hover={{ color: 'app.accent' }}
             >
               GitHub
-            </Link>
-            <Link
-              href="#"
-              fontSize="sm"
-              color="app.textMuted"
-              _hover={{ color: 'app.accent' }}
-            >
-              Support
             </Link>
           </Flex>
         </Flex>

@@ -44,14 +44,24 @@ export function LoginForm() {
   };
 
   return (
-    <FormEl onSubmit={handleSubmit} bg="white" p={8} borderRadius="lg" boxShadow="lg" w="100%" maxW="sm">
+    <FormEl
+      onSubmit={handleSubmit}
+      bg="rgba(17, 19, 29, 0.92)"
+      borderRadius="2xl"
+      border="1px solid rgba(94, 234, 212, 0.2)"
+      boxShadow="0 20px 45px rgba(15, 17, 26, 0.45)"
+      w="100%"
+      maxW="md"
+      px={{ base: 6, md: 10 }}
+      py={{ base: 8, md: 10 }}
+    >
       <Stack gap={6}>
-        <Heading size="lg" textAlign="center">
-          Macro Planner
+        <Heading size="lg" textAlign="center" color="white">
+          Welcome back
         </Heading>
 
         <Box>
-          <Label htmlFor="auth-username" display="block" fontWeight="semibold" mb={2}>
+          <Label htmlFor="auth-username" display="block" fontWeight="semibold" mb={2} color="whiteAlpha.800">
             Username
           </Label>
           <Input
@@ -60,12 +70,16 @@ export function LoginForm() {
             onChange={handleUsernameChange}
             placeholder="user"
             autoComplete="username"
-            bg="gray.50"
+            bg="whiteAlpha.100"
+            borderColor="whiteAlpha.200"
+            color="whiteAlpha.900"
+            _placeholder={{ color: 'whiteAlpha.600' }}
+            _focus={{ borderColor: '#5eead4', boxShadow: '0 0 0 1px #5eead4' }}
           />
         </Box>
 
         <Box>
-          <Label htmlFor="auth-password" display="block" fontWeight="semibold" mb={2}>
+          <Label htmlFor="auth-password" display="block" fontWeight="semibold" mb={2} color="whiteAlpha.800">
             Password
           </Label>
           <Input
@@ -75,22 +89,36 @@ export function LoginForm() {
             onChange={handlePasswordChange}
             placeholder="********"
             autoComplete="current-password"
-            bg="gray.50"
+            bg="whiteAlpha.100"
+            borderColor="whiteAlpha.200"
+            color="whiteAlpha.900"
+            _placeholder={{ color: 'whiteAlpha.600' }}
+            _focus={{ borderColor: '#5eead4', boxShadow: '0 0 0 1px #5eead4' }}
           />
         </Box>
 
         {(formError || error) && (
-          <Text color="red.600" fontSize="sm">
+          <Text color="#fca5a5" fontSize="sm">
             {formError ?? error}
           </Text>
         )}
 
-        <Button type="submit" colorScheme="teal" loading={loading}>
+        <Button
+          type="submit"
+          bg="#5eead4"
+          color="#0f111a"
+          fontWeight="semibold"
+          _hover={{ bg: '#5eead4', transform: 'translateY(-1px)', boxShadow: '0 10px 22px rgba(94, 234, 212, 0.25)' }}
+          _focusVisible={{ boxShadow: '0 0 0 3px rgba(94, 234, 212, 0.45)' }}
+          _active={{ bg: '#34d9c1' }}
+          loading={loading}
+          w="full"
+        >
           Login
         </Button>
-        <Text fontSize="sm" textAlign="center" color="gray.600">
+        <Text fontSize="sm" textAlign="center" color="whiteAlpha.700">
           Need an account?{' '}
-          <LinkEl to="/signup" color="teal.600" fontWeight="semibold">
+          <LinkEl to="/signup" color="#5eead4" fontWeight="semibold">
             Sign up
           </LinkEl>
         </Text>

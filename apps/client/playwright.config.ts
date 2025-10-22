@@ -18,6 +18,9 @@ const tempDbFile = path.join(repoRoot, tempDbRelativePosix);
 const tempDbUrl = `file:${tempDbFile}`;
 const serverPort = 4100;
 
+// Ensure Playwright tests hit the same API port as the dev server started below.
+process.env.SERVER_PORT = String(serverPort);
+
 const migrationSteps = [
   '20240814000000_init/migration.sql',
   '20250929100931_add_sequence_to_ingredients/migration.sql',

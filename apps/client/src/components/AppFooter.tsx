@@ -1,6 +1,22 @@
 import { Box, Container, Flex, Link, Stack, Text } from '@chakra-ui/react';
+import { useCallback, type MouseEvent } from 'react';
+
+import { useMacroData } from '../features/macro/MacroDataProvider';
+import { useAuth } from '../providers/AuthProvider';
 
 export function AppFooter() {
+  const { logout } = useAuth();
+  const { clearError } = useMacroData();
+
+  const handleLogout = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      clearError();
+      logout();
+    },
+    [clearError, logout]
+  );
+
   return (
     <Box
       as="footer"
@@ -29,6 +45,15 @@ export function AppFooter() {
               _hover={{ textDecoration: 'underline', color: 'app.accentMuted' }}
             >
               Info &amp; Usage
+            </Link>
+            <Link
+              href="#logout"
+              fontSize="sm"
+              color="app.textMuted"
+              _hover={{ color: 'app.accent' }}
+              onClick={handleLogout}
+            >
+              Logout
             </Link>
             <Link
               href="https://github.com/jonamat/macro-planner"

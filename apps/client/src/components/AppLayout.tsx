@@ -14,7 +14,7 @@ const navLinks = [
 ];
 
 export function AppLayout() {
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
   const { error, clearError } = useMacroData();
 
   return (
@@ -26,12 +26,7 @@ export function AppLayout() {
     >
       <Box as="header" borderBottomWidth="1px" borderColor="whiteAlpha.100">
         <Container maxW="6xl" py={{ base: 4, md: 6 }}>
-          <Stack
-            direction={{ base: 'column', md: 'row' }}
-            align={{ base: 'flex-start', md: 'center' }}
-            justify="space-between"
-            gap={4}
-          >
+          <Stack direction={{ base: 'column', md: 'row' }} align={{ base: 'flex-start', md: 'center' }} justify="space-between" gap={4}>
             <Box>
               <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="semibold" letterSpacing="tight">
                 Macro Planner
@@ -45,8 +40,9 @@ export function AppLayout() {
               as="nav"
               gap={{ base: 2, md: 4 }}
               flexWrap="wrap"
-              justify={{ base: 'flex-start', md: 'center' }}
+              justify={{ base: 'flex-start', md: 'flex-end' }}
               w={{ base: 'full', md: 'auto' }}
+              ml={{ base: 0, md: 'auto' }}
             >
               {navLinks.map((link) => (
                 <NavLink key={link.to} to={link.to} style={{ textDecoration: 'none' }}>
@@ -67,24 +63,6 @@ export function AppLayout() {
                   )}
                 </NavLink>
               ))}
-            </Flex>
-
-            <Flex align="center" gap={3} w={{ base: 'full', md: 'auto' }} justify={{ base: 'stretch', md: 'flex-end' }}>
-              <Button
-                bg="#5eead4"
-                color="#0f111a"
-                fontWeight="semibold"
-                _hover={{ bg: '#5eead4', transform: 'translateY(-1px)', boxShadow: '0 10px 22px rgba(94, 234, 212, 0.25)' }}
-                _focusVisible={{ boxShadow: '0 0 0 3px rgba(94, 234, 212, 0.45)' }}
-                _active={{ bg: '#34d9c1' }}
-                onClick={() => {
-                  clearError();
-                  logout();
-                }}
-                w={{ base: 'full', md: 'auto' }}
-              >
-                Logout
-              </Button>
             </Flex>
           </Stack>
         </Container>

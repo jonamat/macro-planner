@@ -16,7 +16,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc --build --force tsconfig.json",
     "dev": "tsc -w -p tsconfig.json",
     "test": "jest --config ../../jest.config.ts --selectProjects shared --runInBand"
   }

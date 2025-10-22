@@ -10,9 +10,10 @@ const credentials = {
 const apiPort = Number(process.env.SERVER_PORT ?? '4100');
 
 async function logout(page: Parameters<typeof test>[0]['page']) {
-  const logoutButton = page.getByRole('button', { name: 'Logout' });
-  if ((await logoutButton.count()) > 0 && (await logoutButton.first().isVisible())) {
-    await logoutButton.first().click();
+  const logoutLink = page.getByRole('link', { name: 'Logout' });
+  if ((await logoutLink.count()) > 0 && (await logoutLink.first().isVisible())) {
+    await logoutLink.first().scrollIntoViewIfNeeded();
+    await logoutLink.first().click();
     await expect(page).toHaveURL(/\/login$/);
   }
 }
@@ -22,7 +23,7 @@ async function login(page: Parameters<typeof test>[0]['page'], username = creden
   await page.getByLabel('Username').fill(username);
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Login' }).click();
-  await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole('link', { name: 'Logout' })).toBeVisible({ timeout: 10_000 });
 }
 
 async function addMeal(
@@ -76,7 +77,7 @@ test.describe.serial('Macro Planner critical flows', () => {
     const signupResponse = await signupResponsePromise;
     expect(signupResponse.status()).toBe(201);
 
-    await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('link', { name: 'Logout' })).toBeVisible({ timeout: 10_000 });
     await logout(page);
   });
 
@@ -89,7 +90,7 @@ test.describe.serial('Macro Planner critical flows', () => {
 
     await page.getByLabel('Password').fill(credentials.password);
     await page.getByRole('button', { name: 'Login' }).click();
-    await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('link', { name: 'Logout' })).toBeVisible({ timeout: 10_000 });
     await logout(page);
   });
 

@@ -2,12 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
 import env from '../config/env';
+import prisma from '../config/prisma';
 
 interface AuthPayload {
   userId: string;
 }
 
-export function authenticate(req: Request, res: Response, next: NextFunction) {
+export async function authenticate(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   if (!header) {
     return res.status(401).json({ message: 'Missing authorization header' });
@@ -18,11 +19,22 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
     return res.status(401).json({ message: 'Invalid authorization header format' });
   }
 
+  let payload: AuthPayload;
   try {
-    const payload = jwt.verify(token, env.jwtSecret) as AuthPayload;
-    req.user = { id: payload.userId };
-    return next();
+    payload = jwt.verify(token, env.jwtSecret) as AuthPayload;
   } catch {
     return res.status(401).json({ message: 'Invalid or expired token' });
+  }
+
+  try {
+    const user = await prisma.user.update({
+      where: { id: payload.userId },
+      data: { lastActiveAt: new Date() },
+      select: { id: true }
+    });
+    req.user = { id: user.id };
+    return next();
+  } catch {
+    return res.status(401).json({ message: 'User session is no longer valid' });
   }
 }

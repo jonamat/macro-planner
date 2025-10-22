@@ -15,6 +15,7 @@ model User {
   meals        Meal[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+  lastActiveAt DateTime     @default(now())
 }
 
 model Ingredient {

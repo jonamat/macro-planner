@@ -12,6 +12,7 @@
     "dev:client": "yarn workspace @macro-calculator/client dev",
     "build": "yarn workspace @macro-calculator/shared build && yarn workspace @macro-calculator/server build && yarn workspace @macro-calculator/client build",
     "test": "yarn workspace @macro-calculator/shared test && yarn workspace @macro-calculator/server test && yarn workspace @macro-calculator/client typecheck && yarn workspace @macro-calculator/client test",
+    "test:docker": "node ./scripts/test-docker-build.cjs",
     "migrate": "yarn prisma migrate deploy --schema ./prisma/schema.prisma"
   },
   "devDependencies": {

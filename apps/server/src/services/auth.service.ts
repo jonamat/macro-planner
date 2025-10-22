@@ -27,7 +27,13 @@ export class AuthService {
       throw new HttpError(401, 'Invalid credentials');
     }
 
-    return this.buildAuthResponse(user);
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: { lastActiveAt: new Date() },
+      select: { id: true, username: true }
+    });
+
+    return this.buildAuthResponse(updatedUser);
   }
 
   async signup(input: SignupInput) {
@@ -42,8 +48,10 @@ export class AuthService {
     const user = await prisma.user.create({
       data: {
         username,
-        passwordHash
-      }
+        passwordHash,
+        lastActiveAt: new Date()
+      },
+      select: { id: true, username: true }
     });
 
     return this.buildAuthResponse(user);

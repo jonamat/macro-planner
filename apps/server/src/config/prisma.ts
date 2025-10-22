@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..');
-const DEFAULT_DB_URL = 'file:./prisma/data/dev.db';
+const DEFAULT_DB_URL = 'file:./prisma/prisma/data/dev.db';
 
 function toAbsolutePath(databaseUrl: string) {
   const rawPath = databaseUrl.replace(/^file:/, '');

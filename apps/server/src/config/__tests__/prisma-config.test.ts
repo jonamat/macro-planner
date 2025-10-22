@@ -3,9 +3,9 @@ import path from 'node:path';
 
 describe('ensureDatabaseUrl', () => {
   const projectRoot = path.resolve(__dirname, '../../../../..');
-  const defaultDbUrl = 'file:./prisma/data/dev.db';
-  const defaultDbDir = path.resolve(projectRoot, 'prisma/data');
-  const defaultDbPath = path.resolve(projectRoot, 'prisma/data/dev.db');
+  const defaultDbUrl = 'file:./prisma/prisma/data/dev.db';
+  const defaultDbDir = path.resolve(projectRoot, 'prisma/prisma/data');
+  const defaultDbPath = path.resolve(projectRoot, 'prisma/prisma/data/dev.db');
 
   const originalDatabaseUrl = process.env.DATABASE_URL;
 

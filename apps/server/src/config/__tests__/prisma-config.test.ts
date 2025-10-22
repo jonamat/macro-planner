@@ -1,6 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+jest.mock('node:child_process', () => ({
+  execFileSync: jest.fn(),
+}));
+
 describe('ensureDatabaseUrl', () => {
   const projectRoot = path.resolve(__dirname, '../../../../..');
   const defaultDbUrl = 'file:./prisma/prisma/data/dev.db';
@@ -24,6 +28,8 @@ describe('ensureDatabaseUrl', () => {
   });
 
   it('loads the default database url and ensures the directory exists', () => {
+    const { execFileSync } = require('node:child_process');
+
     jest.isolateModules(() => {
       jest.doMock('@prisma/client', () => ({
         PrismaClient: jest.fn(() => ({})),
@@ -34,9 +40,25 @@ describe('ensureDatabaseUrl', () => {
     expect(process.env.DATABASE_URL).toBe(`file:${defaultDbPath}`);
     expect(fs.existsSync(defaultDbDir)).toBe(true);
     expect(fs.existsSync(defaultDbPath)).toBe(true);
+
+    const expectedBinary = path.resolve(
+      projectRoot,
+      'node_modules',
+      '.bin',
+      process.platform === 'win32' ? 'prisma.cmd' : 'prisma'
+    );
+    const expectedSchema = path.resolve(projectRoot, 'prisma/schema.prisma');
+
+    expect(execFileSync).toHaveBeenCalledWith(
+      expectedBinary,
+      ['migrate', 'deploy', '--schema', expectedSchema],
+      expect.objectContaining({ cwd: projectRoot })
+    );
   });
 
   it('keeps an existing database url and creates its directory', () => {
+    const { execFileSync } = require('node:child_process');
+
     const relativePath = `./tmp/prisma-tests/test-${Date.now()}.db`;
     const absolutePath = path.resolve(projectRoot, relativePath);
     const targetDir = path.dirname(absolutePath);
@@ -56,5 +78,19 @@ describe('ensureDatabaseUrl', () => {
     expect(fs.existsSync(absolutePath)).toBe(true);
 
     fs.rmSync(targetDir, { recursive: true, force: true });
+
+    const expectedBinary = path.resolve(
+      projectRoot,
+      'node_modules',
+      '.bin',
+      process.platform === 'win32' ? 'prisma.cmd' : 'prisma'
+    );
+    const expectedSchema = path.resolve(projectRoot, 'prisma/schema.prisma');
+
+    expect(execFileSync).toHaveBeenCalledWith(
+      expectedBinary,
+      ['migrate', 'deploy', '--schema', expectedSchema],
+      expect.objectContaining({ cwd: projectRoot })
+    );
   });
 });

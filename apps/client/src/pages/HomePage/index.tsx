@@ -179,9 +179,13 @@ function IngredientRow({
                   fontWeight="bold"
                   bg="transparent"
                   onMouseEnter={() => setActiveTooltip(field)}
-                  onMouseLeave={() => setActiveTooltip((prev) => (prev === field ? null : prev))}
+                  onMouseLeave={() =>
+                    setActiveTooltip((prev) => (prev === field ? null : prev))
+                  }
                   onFocus={() => setActiveTooltip(field)}
-                  onBlur={() => setActiveTooltip((prev) => (prev === field ? null : prev))}
+                  onBlur={() =>
+                    setActiveTooltip((prev) => (prev === field ? null : prev))
+                  }
                   onClick={() =>
                     setActiveTooltip((prev) => (prev === field ? null : field))
                   }
@@ -596,6 +600,7 @@ export default function HomePage() {
                 textTransform="uppercase"
                 letterSpacing="0.08em"
                 color="app.textMuted"
+                mr={4}
               >
                 Select meal
               </Label>
@@ -842,11 +847,15 @@ export default function HomePage() {
       <Button
         position="fixed"
         bottom={{ base: 4, md: 6 }}
-        right={{ base: 4, md: 6 }}
+        right={{ base: 4, md: 6 }} 
         size={{ base: "md", md: "lg" }}
-        bg="app.accent"
+        bg="#5eead4"
+        _hover={{
+          bg: "#5eead4",
+          transform: "translateY(-1px)",
+          boxShadow: "0 10px 22px rgba(94, 234, 212, 0.25)",
+        }}
         color="#061216"
-        _hover={{ bg: "app.accentMuted" }}
         onClick={handleCalculate}
         loading={saving}
         disabled={calculateDisabled}

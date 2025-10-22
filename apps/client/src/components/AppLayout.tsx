@@ -11,7 +11,6 @@ const navLinks = [
   { to: '/', label: 'Dashboard' },
   { to: '/meals', label: 'Meals' },
   { to: '/ingredients', label: 'Ingredients' },
-  { to: '/info', label: 'Info' }
 ];
 
 export function AppLayout() {

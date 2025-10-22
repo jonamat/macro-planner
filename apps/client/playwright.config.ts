@@ -21,19 +21,9 @@ const serverPort = 4100;
 // Ensure Playwright tests hit the same API port as the dev server started below.
 process.env.SERVER_PORT = String(serverPort);
 
-const migrationSteps = [
-  '20240814000000_init/migration.sql',
-  '20250929100931_add_sequence_to_ingredients/migration.sql',
-  '20251001090000_remove_sequence_from_ingredient/migration.sql'
-];
-
 const dbBootstrapCommand = [
-  `DB_FILE="${tempDbFile}"`,
-  'rm -f "$DB_FILE"',
-  'sqlite3 "$DB_FILE" ".databases"',
-  ...migrationSteps.map(
-    (migration) => `sqlite3 "$DB_FILE" ".read prisma/migrations/${migration}"`
-  ),
+  `rm -f "${tempDbFile}"`,
+  `RUST_LOG=info DATABASE_URL="${tempDbUrl}" npx prisma migrate deploy --schema prisma/schema.prisma`,
   `DATABASE_URL="${tempDbUrl}" JWT_SECRET="test-secret" SERVER_PORT=${serverPort} yarn dev`
 ].join(' && ');
 

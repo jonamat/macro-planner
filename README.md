@@ -124,14 +124,6 @@ Authentication: Bearer token (JWT) returned from signup/login endpoints. Routes 
   ```
 - The server automatically serves the Vite output from `apps/client/dist`; deploying a single Node process is sufficient. Configure `DATABASE_URL`, `JWT_SECRET`, and `SERVER_PORT` in your production environment.
 
-## Publishing Checklist
-
-- [ ] Replace temporary copy (e.g., Info page notes) with branded content and onboarding links.
-- [ ] Capture and add screenshots or GIFs that showcase the optimisation workflow.
-- [ ] Update `package.json` fields (`name`, `description`, `repository`, `homepage`) before publishing.
-- [ ] Run `yarn build && yarn test` and ensure Playwright checks pass in CI.
-- [ ] Tag a release, push to GitHub, then publish release notes.
-
 ## License
 
 Released under the [MIT License](LICENSE).

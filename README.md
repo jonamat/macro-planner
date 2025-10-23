@@ -7,6 +7,14 @@ Macro planner is a full-stack meal-planning companion that stores your favorite 
 > **Disclaimer**  
 > This planner is not a medical tool, and the author does not accept responsibility for the results. Use it to keep eating what you enjoy—just calibrate ingredient weights so they line up with your personalized plan. Craft that plan with guidance from a licensed nutritionist, a trustworthy online calculator, or fine-tuned AI tool.
 
+
+## My kitchen for you
+
+In the root of the project, you'll find a sample ingredient and meals library exported from my personal macro planner setup. Feel free to import it into your own instance to get started quickly, then modify or expand it with your favorite foods.
+
+[Download my ingredients](./samples/ingredients.json)
+[Download my meals](./samples/meals.json)
+
 ## Highlights
 
 - Personal ingredient library with carbs/protein/fat per 100 g, optional min/max bounds, mandatory grams, and indivisible serving sizes.

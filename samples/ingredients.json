@@ -1,0 +1,561 @@
+[
+  {
+    "name": "Raw Cashews",
+    "carbo100g": 30,
+    "protein100g": 18,
+    "fat100g": 44,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Banana",
+    "carbo100g": 23,
+    "protein100g": 1,
+    "fat100g": 0.3,
+    "min": 0,
+    "mandatory": 0,
+    "indivisible": 110
+  },
+  {
+    "name": "Sea Bass (fillet)",
+    "carbo100g": 0,
+    "protein100g": 18,
+    "fat100g": 2.7,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Bresaola (cured beef)",
+    "carbo100g": 0,
+    "protein100g": 33,
+    "fat100g": 3,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Brie Cheese",
+    "carbo100g": 0.5,
+    "protein100g": 20,
+    "fat100g": 27,
+    "min": 0,
+    "max": 30,
+    "mandatory": 30
+  },
+  {
+    "name": "Butter",
+    "carbo100g": 0.5,
+    "protein100g": 0.5,
+    "fat100g": 82,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Peanut Butter",
+    "carbo100g": 16,
+    "protein100g": 24,
+    "fat100g": 48,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Fresh Caciotta Cheese (LIDL)",
+    "carbo100g": 1,
+    "protein100g": 22,
+    "fat100g": 31,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Carrots",
+    "carbo100g": 10,
+    "protein100g": 0.9,
+    "fat100g": 0.2,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Cheerios (LIDL)",
+    "carbo100g": 76.8,
+    "protein100g": 9,
+    "fat100g": 3,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Pork Coppa",
+    "carbo100g": 0,
+    "protein100g": 20,
+    "fat100g": 10,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Chicken Thighs",
+    "carbo100g": 0,
+    "protein100g": 17,
+    "fat100g": 15,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Cooked Chicken Thighs (LIDL deli)",
+    "carbo100g": 0,
+    "protein100g": 26,
+    "fat100g": 14,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Delicate Crackers (ALDI)",
+    "carbo100g": 76,
+    "protein100g": 11,
+    "fat100g": 6.3,
+    "min": 0,
+    "max": 20,
+    "mandatory": 0
+  },
+  {
+    "name": "Raw Green Beans",
+    "carbo100g": 7,
+    "protein100g": 2,
+    "fat100g": 0.2,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Oat Flakes",
+    "carbo100g": 59,
+    "protein100g": 14,
+    "fat100g": 7,
+    "min": 0,
+    "max": 40,
+    "mandatory": 0
+  },
+  {
+    "name": "Fresh Large Gnocchi (LIDL)",
+    "carbo100g": 33,
+    "protein100g": 4,
+    "fat100g": 0.3,
+    "min": 0,
+    "max": 250,
+    "mandatory": 0
+  },
+  {
+    "name": "Kefir",
+    "carbo100g": 4,
+    "protein100g": 3.5,
+    "fat100g": 1.5,
+    "min": 0,
+    "max": 250,
+    "mandatory": 0
+  },
+  {
+    "name": "Rice Milk",
+    "carbo100g": 12,
+    "protein100g": 0.2,
+    "fat100g": 1.4,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Whole Milk",
+    "carbo100g": 5,
+    "protein100g": 3.3,
+    "fat100g": 3.5,
+    "min": 0,
+    "max": 250,
+    "mandatory": 0
+  },
+  {
+    "name": "Semi-Skimmed Milk",
+    "carbo100g": 5,
+    "protein100g": 3.4,
+    "fat100g": 1.6,
+    "min": 0,
+    "max": 250,
+    "mandatory": 0
+  },
+  {
+    "name": "Skimmed Milk",
+    "carbo100g": 5,
+    "protein100g": 3.5,
+    "fat100g": 0.3,
+    "min": 0,
+    "max": 250,
+    "mandatory": 0
+  },
+  {
+    "name": "Ground Chicken/Turkey",
+    "carbo100g": 0,
+    "protein100g": 19,
+    "fat100g": 8,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Almonds",
+    "carbo100g": 22,
+    "protein100g": 21,
+    "fat100g": 50,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Cod (fillet)",
+    "carbo100g": 0,
+    "protein100g": 18,
+    "fat100g": 0.7,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Honey",
+    "carbo100g": 82,
+    "protein100g": 0.3,
+    "fat100g": 0,
+    "min": 0,
+    "max": 3,
+    "mandatory": 0
+  },
+  {
+    "name": "Blueberries",
+    "carbo100g": 14,
+    "protein100g": 0.7,
+    "fat100g": 0.3,
+    "min": 0,
+    "max": 50,
+    "mandatory": 0
+  },
+  {
+    "name": "Walnuts",
+    "carbo100g": 14,
+    "protein100g": 15,
+    "fat100g": 65,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Nutella",
+    "carbo100g": 51,
+    "protein100g": 6,
+    "fat100g": 35,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Oil (all types)",
+    "carbo100g": 0,
+    "protein100g": 0,
+    "fat100g": 100,
+    "min": 0,
+    "max": 6,
+    "mandatory": 0
+  },
+  {
+    "name": "Black Olives in Brine",
+    "carbo100g": 6,
+    "protein100g": 1,
+    "fat100g": 15,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Sandwich Bread",
+    "carbo100g": 49,
+    "protein100g": 9,
+    "fat100g": 3,
+    "min": 0,
+    "max": 40,
+    "mandatory": 0,
+    "indivisible": 20
+  },
+  {
+    "name": "White Bread",
+    "carbo100g": 53,
+    "protein100g": 9,
+    "fat100g": 6,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Sandwich Bread Slices",
+    "carbo100g": 45,
+    "protein100g": 7.5,
+    "fat100g": 3,
+    "min": 0,
+    "mandatory": 0,
+    "indivisible": 35
+  },
+  {
+    "name": "Pangasius (fillet)",
+    "carbo100g": 0,
+    "protein100g": 16,
+    "fat100g": 1,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Cooking Cream",
+    "carbo100g": 3,
+    "protein100g": 3,
+    "fat100g": 20,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Pasta (row)",
+    "carbo100g": 75,
+    "protein100g": 13,
+    "fat100g": 1.5,
+    "min": 0,
+    "max": 80,
+    "mandatory": 0
+  },
+  {
+    "name": "Egg Pasta",
+    "carbo100g": 69,
+    "protein100g": 15,
+    "fat100g": 4.3,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Bell Peppers",
+    "carbo100g": 6,
+    "protein100g": 1,
+    "fat100g": 0.3,
+    "min": 0,
+    "max": 200,
+    "mandatory": 0
+  },
+  {
+    "name": "African Perch (fillet)",
+    "carbo100g": 0,
+    "protein100g": 18,
+    "fat100g": 1,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "European Perch (fillet)",
+    "carbo100g": 0,
+    "protein100g": 22,
+    "fat100g": 1,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Swordfish (steak)",
+    "carbo100g": 0,
+    "protein100g": 20,
+    "fat100g": 6.7,
+    "min": 0,
+    "mandatory": 0,
+    "indivisible": 150
+  },
+  {
+    "name": "Chicken Breast (cooked)",
+    "carbo100g": 0,
+    "protein100g": 30,
+    "fat100g": 5,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Chicken Breast (raw)",
+    "carbo100g": 0,
+    "protein100g": 23,
+    "fat100g": 1.2,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Margherita Pizza",
+    "carbo100g": 30,
+    "protein100g": 12,
+    "fat100g": 10,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Cooked Ham",
+    "carbo100g": 0,
+    "protein100g": 22,
+    "fat100g": 3,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Quinoa",
+    "carbo100g": 64,
+    "protein100g": 14,
+    "fat100g": 6,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Classic Meat Sauce (Star brand)",
+    "carbo100g": 4,
+    "protein100g": 6,
+    "fat100g": 8,
+    "min": 0,
+    "max": 100,
+    "mandatory": 100
+  },
+  {
+    "name": "Rice (all types) and Rice Flour",
+    "carbo100g": 80,
+    "protein100g": 7,
+    "fat100g": 1,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Salmon (fillet)",
+    "carbo100g": 0,
+    "protein100g": 20,
+    "fat100g": 13,
+    "min": 0,
+    "max": 100,
+    "mandatory": 100
+  },
+  {
+    "name": "Chia Seeds",
+    "carbo100g": 42,
+    "protein100g": 16,
+    "fat100g": 31,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Flax Seeds",
+    "carbo100g": 29,
+    "protein100g": 18,
+    "fat100g": 42,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Mackerel (fillet)",
+    "carbo100g": 1,
+    "protein100g": 18,
+    "fat100g": 21,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Skyr",
+    "carbo100g": 4,
+    "protein100g": 11,
+    "fat100g": 0.2,
+    "min": 0,
+    "max": 150,
+    "mandatory": 0
+  },
+  {
+    "name": "Sea Bass (fillet)",
+    "carbo100g": 0,
+    "protein100g": 20,
+    "fat100g": 2,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Spinach (raw)",
+    "carbo100g": 3.6,
+    "protein100g": 2.9,
+    "fat100g": 0.4,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Orange Juice",
+    "carbo100g": 10,
+    "protein100g": 0.7,
+    "fat100g": 0.2,
+    "min": 0,
+    "max": 250,
+    "mandatory": 0
+  },
+  {
+    "name": "Sausage Sauce (LIDL)",
+    "carbo100g": 6.8,
+    "protein100g": 4.1,
+    "fat100g": 3.4,
+    "min": 133,
+    "max": 133,
+    "mandatory": 133
+  },
+  {
+    "name": "Plum",
+    "carbo100g": 11,
+    "protein100g": 0,
+    "fat100g": 0,
+    "min": 0,
+    "max": 100,
+    "mandatory": 100,
+    "indivisible": 100
+  },
+  {
+    "name": "Tuna (fillet)",
+    "carbo100g": 0,
+    "protein100g": 25,
+    "fat100g": 1,
+    "min": 0,
+    "mandatory": 0
+  },
+  {
+    "name": "Canned Tuna",
+    "carbo100g": 0,
+    "protein100g": 24,
+    "fat100g": 1,
+    "min": 0,
+    "max": 40,
+    "mandatory": 0
+  },
+  {
+    "name": "Eggs",
+    "carbo100g": 1.1,
+    "protein100g": 13,
+    "fat100g": 10,
+    "min": 0,
+    "mandatory": 0,
+    "indivisible": 50
+  },
+  {
+    "name": "Grapes",
+    "carbo100g": 17,
+    "protein100g": 0.6,
+    "fat100g": 0.2,
+    "min": 0,
+    "max": 150,
+    "mandatory": 0
+  },
+  {
+    "name": "Greek Yogurt 0%",
+    "carbo100g": 4,
+    "protein100g": 10,
+    "fat100g": 0,
+    "min": 0,
+    "max": 150,
+    "mandatory": 0
+  },
+  {
+    "name": "Greek Yogurt 10%",
+    "carbo100g": 4,
+    "protein100g": 10,
+    "fat100g": 10,
+    "min": 0,
+    "max": 150,
+    "mandatory": 0
+  },
+  {
+    "name": "Zucchini (raw)",
+    "carbo100g": 3.1,
+    "protein100g": 1.2,
+    "fat100g": 0.3,
+    "min": 0,
+    "max": 150,
+    "mandatory": 0
+  }
+]

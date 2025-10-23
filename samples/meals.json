@@ -1,0 +1,98 @@
+[
+  {
+    "name": "[1800] Dinner",
+    "carbo": 30,
+    "protein": 40,
+    "fat": 22
+  },
+  {
+    "name": "[1800] Breakfast",
+    "carbo": 60,
+    "protein": 30,
+    "fat": 5
+  },
+  {
+    "name": "[1800] Lunch",
+    "carbo": 70,
+    "protein": 45,
+    "fat": 12
+  },
+  {
+    "name": "[1800] Snack",
+    "carbo": 30,
+    "protein": 25,
+    "fat": 8
+  },
+  {
+    "name": "[2000] Dinner",
+    "carbo": 35,
+    "protein": 40,
+    "fat": 20
+  },
+  {
+    "name": "[2000] Breakfast",
+    "carbo": 65,
+    "protein": 30,
+    "fat": 6
+  },
+  {
+    "name": "[2000] Lunch",
+    "carbo": 90,
+    "protein": 45,
+    "fat": 14
+  },
+  {
+    "name": "[2000] Snack",
+    "carbo": 35,
+    "protein": 25,
+    "fat": 10
+  },
+  {
+    "name": "[2200] Dinner",
+    "carbo": 40,
+    "protein": 40,
+    "fat": 22
+  },
+  {
+    "name": "[2200] Breakfast",
+    "carbo": 75,
+    "protein": 30,
+    "fat": 6
+  },
+  {
+    "name": "[2200] Lunch",
+    "carbo": 100,
+    "protein": 45,
+    "fat": 16
+  },
+  {
+    "name": "[2200] Snack",
+    "carbo": 40,
+    "protein": 25,
+    "fat": 12
+  },
+  {
+    "name": "[2350] Dinner",
+    "carbo": 45,
+    "protein": 40,
+    "fat": 22
+  },
+  {
+    "name": "[2350] Breakfast",
+    "carbo": 80,
+    "protein": 30,
+    "fat": 6
+  },
+  {
+    "name": "[2350] Lunch",
+    "carbo": 110,
+    "protein": 45,
+    "fat": 18
+  },
+  {
+    "name": "[2350] Snack",
+    "carbo": 45,
+    "protein": 25,
+    "fat": 12
+  }
+]

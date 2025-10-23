@@ -12,7 +12,7 @@ Macro planner is a full-stack meal-planning companion that stores your favorite 
 
 In the root of the project, you'll find a sample ingredient and meals library exported from my personal macro planner setup. Feel free to import it into your own instance to get started quickly, then modify or expand it with your favorite foods.
 
-[Download my ingredients](./samples/ingredients.json)
+[Download my ingredients](./samples/ingredients.json)  
 [Download my meals](./samples/meals.json)
 
 ## Highlights

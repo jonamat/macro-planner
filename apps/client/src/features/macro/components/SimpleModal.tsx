@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Heading, chakra } from '@chakra-ui/react';
 import type { FormEvent, ReactNode } from 'react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ModalSurface = chakra('div');
 const FormEl = chakra('form');
@@ -28,8 +29,8 @@ export function SimpleModal({
   isDeleting,
   deleteLabel
 }: SimpleModalProps) {
-  if (!open) return null;
-
+  const { t } = useTranslation();
+  
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -48,6 +49,8 @@ export function SimpleModal({
     event.preventDefault();
     onSubmit();
   };
+
+  if (!open) return null;
 
   return (
     <ModalSurface
@@ -76,7 +79,7 @@ export function SimpleModal({
             {title}
           </Heading>
           <Button variant="ghost" size="sm" onClick={onClose} _hover={{ bg: 'whiteAlpha.100' }}>
-            Close
+            {t("Close")}
           </Button>
         </Flex>
         <FormEl onSubmit={handleSubmit} display="flex" flexDirection="column" gap={5}>
@@ -92,7 +95,7 @@ export function SimpleModal({
                 loading={isDeleting}
                 mr="auto"
               >
-                {deleteLabel ?? 'Delete'}
+                {deleteLabel ?? t('Delete')}
               </Button>
             )}
             <Button
@@ -101,7 +104,7 @@ export function SimpleModal({
               _hover={{ bg: 'rgba(148, 163, 184, 0.12)' }}
               onClick={onClose}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button
               bg="app.accent"
@@ -110,7 +113,7 @@ export function SimpleModal({
               type="submit"
               loading={isSubmitting}
             >
-              Save
+              {t("Save")}
             </Button>
           </Flex>
         </FormEl>

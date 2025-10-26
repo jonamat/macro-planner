@@ -1,24 +1,24 @@
 [
   {
-    "name": "[2300] Breakfast",
+    "name": "[2300] Colazione",
     "carbo": 80,
     "protein": 20,
     "fat": 13
   },
   {
-    "name": "[2300] Lunch",
+    "name": "[2300] Pranzo",
     "carbo": 115,
     "protein": 37,
     "fat": 16
   },
   {
-    "name": "[2300] Snack",
+    "name": "[2300] Spuntino",
     "carbo": 40,
     "protein": 28,
     "fat": 12
   },
   {
-    "name": "[2300] Dinner",
+    "name": "[2300] Cena",
     "carbo": 85,
     "protein": 28,
     "fat": 17

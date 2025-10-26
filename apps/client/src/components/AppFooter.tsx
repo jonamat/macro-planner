@@ -1,10 +1,12 @@
 import { Box, Container, Flex, Link, Stack, Text } from '@chakra-ui/react';
 import { useCallback, type MouseEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useMacroData } from '../features/macro/MacroDataProvider';
 import { useAuth } from '../providers/AuthProvider';
 
 export function AppFooter() {
+  const { t } = useTranslation();
   const { logout } = useAuth();
   const { clearError } = useMacroData();
 
@@ -30,10 +32,10 @@ export function AppFooter() {
         <Flex direction={{ base: 'column', md: 'row' }} align={{ base: 'flex-start', md: 'center' }} justify="space-between" gap={6}>
           <Stack gap={1}>
             <Text fontSize="sm" color="rgba(245, 247, 255, 0.75)">
-              Crafted just for me, but take it · © {new Date().getFullYear()}
+              {t("Crafted just for me, but take it")} · © {new Date().getFullYear()}
             </Text>
             <Text fontSize="xs" color="rgba(148, 197, 255, 0.7)">
-              Jonamat Macro planner · MIT Licensed
+              {t("Jonamat Macro planner · MIT Licensed")}
             </Text>
           </Stack>
 
@@ -44,7 +46,7 @@ export function AppFooter() {
               color="app.accent"
               _hover={{ textDecoration: 'underline', color: 'app.accentMuted' }}
             >
-              Info &amp; Usage
+              {t("Info & Usage")}
             </Link>
             <Link
               href="#logout"
@@ -53,7 +55,7 @@ export function AppFooter() {
               _hover={{ color: 'app.accent' }}
               onClick={handleLogout}
             >
-              Logout
+              {t("Logout")}
             </Link>
             <Link
               href="https://github.com/jonamat/macro-planner"
@@ -63,7 +65,7 @@ export function AppFooter() {
               color="app.textMuted"
               _hover={{ color: 'app.accent' }}
             >
-              GitHub
+              {t("GitHub")}
             </Link>
           </Flex>
         </Flex>

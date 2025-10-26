@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react';
 import { ChangeEvent, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 
 import { MealModal } from '../../features/macro/components/MealModal';
 import { useMacroData } from '../../features/macro/MacroDataProvider';
@@ -15,6 +16,7 @@ import { buildMealInitialState, parseMealsJson } from '../../features/macro/util
 import type { ApiMeal } from '../../types/api';
 
 export default function MealsPage() {
+  const { t } = useTranslation();
   const {
     meals,
     loading,
@@ -46,9 +48,9 @@ export default function MealsPage() {
       const text = await file.text();
       const payload = parseMealsJson(text);
       await importMeals(payload);
-      toast.success('Meals imported successfully');
+      toast.success(t('Meals imported successfully'));
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to import meals';
+      const message = err instanceof Error ? err.message : t('Unable to import meals');
       toast.error(message);
     }
   };
@@ -83,10 +85,10 @@ export default function MealsPage() {
       <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" gap={4} mb={6}>
         <Box>
           <Text fontSize="xl" fontWeight="semibold">
-            Meals library
+            {t("Meals library")}
           </Text>
           <Text color="app.textMuted" fontSize="sm">
-            Maintain all your macro targets in one place. Import existing presets or create new ones.
+            {t("Maintain all your macro targets in one place. Import existing presets or create new ones.")}
           </Text>
         </Box>
         <Flex gap={3} wrap="wrap">
@@ -98,7 +100,7 @@ export default function MealsPage() {
             onClick={() => importInputRef.current?.click()}
             size="sm"
           >
-            Import JSON
+            {t("Import JSON")}
           </Button>
           <Button
             variant="outline"
@@ -108,7 +110,7 @@ export default function MealsPage() {
             onClick={exportMeals}
             size="sm"
           >
-            Export JSON
+            {t("Export JSON")}
           </Button>
           <Button
             bg="app.accent"
@@ -117,7 +119,7 @@ export default function MealsPage() {
             size="sm"
             onClick={addMealModal.onOpen}
           >
-            Add meal
+            {t("Add meal")}
           </Button>
         </Flex>
       </Flex>
@@ -133,7 +135,7 @@ export default function MealsPage() {
             textAlign="center"
           >
             <Text color="app.textMuted" fontSize="sm">
-              Loading meals...
+              {t("Loading meals...")}
             </Text>
           </Box>
         )}
@@ -148,7 +150,7 @@ export default function MealsPage() {
             textAlign="center"
           >
             <Text color="app.textMuted" fontSize="sm">
-              No meals yet. Create your first macro target to begin planning.
+              {t("No meals yet. Create your first macro target to begin planning.")}
             </Text>
           </Box>
         )}
@@ -191,7 +193,7 @@ export default function MealsPage() {
                     editMealModal.onOpen();
                   }}
                 >
-                  Edit
+                  {t("Edit")}
                 </Button>
                 <Button
                   variant="ghost"
@@ -207,7 +209,7 @@ export default function MealsPage() {
                   }}
                   loading={saving}
                 >
-                  Delete
+                  {t("Delete")}
                 </Button>
               </Flex>
             </Flex>
@@ -225,7 +227,7 @@ export default function MealsPage() {
 
       <MealModal
         open={addMealModal.open}
-        title="Add meal"
+        title={t("Add meal")}
         isSubmitting={saving}
         onClose={addMealModal.onClose}
         onSubmit={handleMealCreate}
@@ -233,7 +235,7 @@ export default function MealsPage() {
 
       <MealModal
         open={editMealModal.open}
-        title="Edit meal"
+        title={t("Edit meal")}
         isSubmitting={saving}
         onClose={() => {
           setEditingMeal(null);

@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Grid, GridItem, Stack, Text, useDisclosure } from '@chakra-ui/react';
 import { ChangeEvent, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 
 import { IngredientModal } from '../../features/macro/components/IngredientModal';
 import { useMacroData } from '../../features/macro/MacroDataProvider';
@@ -11,6 +12,7 @@ import {
 import type { ClientIngredient } from '../../features/macro/types';
 
 export default function IngredientsPage() {
+  const { t } = useTranslation();
   const {
     ingredients,
     saving,
@@ -41,9 +43,9 @@ export default function IngredientsPage() {
       const text = await file.text();
       const payload = parseIngredientsJson(text);
       await importIngredients(payload);
-      toast.success('Ingredients imported successfully');
+      toast.success(t('Ingredients imported successfully'));
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to import ingredients';
+      const message = err instanceof Error ? err.message : t('Unable to import ingredients');
       toast.error(message);
     }
   };
@@ -59,10 +61,10 @@ export default function IngredientsPage() {
       <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" gap={4} mb={6}>
         <Box>
           <Text fontSize="xl" fontWeight="semibold">
-            Ingredients catalog
+            {t("Ingredients catalog")}
           </Text>
           <Text color="app.textMuted" fontSize="sm">
-            Manage every ingredient available to the optimizer. Adjust macros and constraints.
+            {t("Manage every ingredient available to the optimizer. Adjust macros and constraints.")}
           </Text>
         </Box>
         <Flex gap={3} wrap="wrap">
@@ -74,7 +76,7 @@ export default function IngredientsPage() {
             size="sm"
             onClick={() => importInputRef.current?.click()}
           >
-            Import JSON
+            {t("Import JSON")}
           </Button>
           <Button
             variant="outline"
@@ -84,7 +86,7 @@ export default function IngredientsPage() {
             size="sm"
             onClick={() => exportIngredients('all')}
           >
-            Export JSON
+            {t("Export JSON")}
           </Button>
           <Button
             bg="app.accent"
@@ -93,7 +95,7 @@ export default function IngredientsPage() {
             size="sm"
             onClick={addIngredientModal.onOpen}
           >
-            Add ingredient
+            {t("Add ingredient")}
           </Button>
         </Flex>
       </Flex>
@@ -109,7 +111,7 @@ export default function IngredientsPage() {
             textAlign="center"
           >
             <Text color="app.textMuted" fontSize="sm">
-              Loading ingredients...
+              {t("Loading ingredients...")}
             </Text>
           </Box>
         )}
@@ -124,7 +126,7 @@ export default function IngredientsPage() {
             textAlign="center"
           >
             <Text color="app.textMuted" fontSize="sm">
-              No ingredients yet. Add your first ingredient to start planning meals.
+              {t("No ingredients yet. Add your first ingredient to start planning meals.")}
             </Text>
           </Box>
         )}
@@ -154,7 +156,7 @@ export default function IngredientsPage() {
 
               <GridItem>
                 <Text fontSize="xs" textTransform="uppercase" letterSpacing="0.08em" color="app.textMuted">
-                  Min / Max
+                  {t("Min / Max")}
                 </Text>
                 <Text mt={2}>
                   {ingredient.min ?? '—'} / {ingredient.max ?? '—'}
@@ -163,7 +165,7 @@ export default function IngredientsPage() {
 
               <GridItem>
                 <Text fontSize="xs" textTransform="uppercase" letterSpacing="0.08em" color="app.textMuted">
-                  Mandatory / Indivisible
+                  {t("Mandatory / Indivisible")}
                 </Text>
                 <Text mt={2}>
                   {ingredient.mandatory ?? '—'} / {ingredient.indivisible ?? '—'}
@@ -183,7 +185,7 @@ export default function IngredientsPage() {
                       editIngredientModal.onOpen();
                     }}
                   >
-                    Edit
+                    {t("Edit")}
                   </Button>
                   <Button
                     size="sm"
@@ -195,7 +197,7 @@ export default function IngredientsPage() {
                     }}
                     loading={saving}
                   >
-                    Delete
+                    {t("Delete")}
                   </Button>
                 </Flex>
               </GridItem>
@@ -214,7 +216,7 @@ export default function IngredientsPage() {
 
       <IngredientModal
         open={addIngredientModal.open}
-        title="Add ingredient"
+        title={t("Add ingredient")}
         isSubmitting={saving}
         onClose={addIngredientModal.onClose}
         onSubmit={async (values) => {
@@ -225,7 +227,7 @@ export default function IngredientsPage() {
 
       <IngredientModal
         open={editIngredientModal.open}
-        title="Edit ingredient"
+        title={t("Edit ingredient")}
         isSubmitting={saving}
         onClose={() => {
           setEditingIngredient(null);

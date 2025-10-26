@@ -1,4 +1,5 @@
 import { Box, Button, Flex, Heading, Stack, Table, Text } from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
 
 import type { CalculationState } from '../types';
 
@@ -8,6 +9,8 @@ interface ResultsCardProps {
 }
 
 export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
+  const { t } = useTranslation();
+  
   return (
     <Box
       bg="app.surface"
@@ -19,14 +22,14 @@ export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
       <Flex align={{ base: 'flex-start', sm: 'center' }} justify="space-between" mb={4} gap={3}>
         <Stack gap={1}>
           <Heading size="md" letterSpacing="wide">
-            Optimization Results
+            {t("Optimization Results")}
           </Heading>
           <Text color="app.textMuted" fontSize="sm">
-            Target meal · {calculation.targetName}
+            {t("Target meal")} · {calculation.targetName}
           </Text>
         </Stack>
         <Button variant="ghost" color="app.textMuted" _hover={{ bg: 'whiteAlpha.100' }} onClick={onClose}>
-          Clear
+          {t("Clear")}
         </Button>
       </Flex>
 
@@ -46,7 +49,7 @@ export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
                 letterSpacing="0.08em"
                 borderBottom="1px solid rgba(94, 234, 212, 0.28)"
               >
-                Ingredient
+                {t("Ingredient")}
               </Table.ColumnHeader>
               <Table.ColumnHeader
                 textAlign="end"
@@ -55,7 +58,7 @@ export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
                 textTransform="uppercase"
                 borderBottom="1px solid rgba(94, 234, 212, 0.28)"
               >
-                Weight (g)
+                {t("Weight (g)")}
               </Table.ColumnHeader>
               <Table.ColumnHeader
                 textAlign="end"
@@ -64,7 +67,7 @@ export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
                 textTransform="uppercase"
                 borderBottom="1px solid rgba(94, 234, 212, 0.28)"
               >
-                Carbs (g)
+                {t("Carbs (g)")}
               </Table.ColumnHeader>
               <Table.ColumnHeader
                 textAlign="end"
@@ -73,7 +76,7 @@ export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
                 textTransform="uppercase"
                 borderBottom="1px solid rgba(94, 234, 212, 0.28)"
               >
-                Protein (g)
+                {t("Protein (g)")}
               </Table.ColumnHeader>
               <Table.ColumnHeader
                 textAlign="end"
@@ -82,7 +85,7 @@ export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
                 textTransform="uppercase"
                 borderBottom="1px solid rgba(94, 234, 212, 0.28)"
               >
-                Fat (g)
+                {t("Fat (g)")}
               </Table.ColumnHeader>
               <Table.ColumnHeader
                 textAlign="end"
@@ -91,7 +94,7 @@ export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
                 textTransform="uppercase"
                 borderBottom="1px solid rgba(94, 234, 212, 0.28)"
               >
-                kcal
+                {t("kcal")}
               </Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
@@ -111,7 +114,7 @@ export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
               </Table.Row>
             ))}
             <Table.Row fontWeight="semibold" borderTop="1px solid rgba(94, 234, 212, 0.4)" bg="rgba(94, 234, 212, 0.38)">
-              <Table.Cell color="white">Totals</Table.Cell>
+              <Table.Cell color="white">{t("Totals")}</Table.Cell>
               <Table.Cell textAlign="end" color="white">{Math.round(calculation.totalWeight)}</Table.Cell>
               <Table.Cell textAlign="end" color="white">{Math.round(calculation.totalCarbo)}</Table.Cell>
               <Table.Cell textAlign="end" color="white">{Math.round(calculation.totalProtein)}</Table.Cell>
@@ -119,7 +122,7 @@ export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
               <Table.Cell textAlign="end" color="white">{Math.round(calculation.totalKcal)}</Table.Cell>
             </Table.Row>
             <Table.Row bg="rgba(26, 30, 44, 0.92)">
-              <Table.Cell color="app.textMuted">Targets</Table.Cell>
+              <Table.Cell color="app.textMuted">{t("Targets")}</Table.Cell>
               <Table.Cell textAlign="end" color="app.textMuted">-</Table.Cell>
               <Table.Cell textAlign="end" color="app.textMuted">{Math.round(calculation.targetCarbo)}</Table.Cell>
               <Table.Cell textAlign="end" color="app.textMuted">{Math.round(calculation.targetProtein)}</Table.Cell>
@@ -127,7 +130,7 @@ export function ResultsCard({ calculation, onClose }: ResultsCardProps) {
               <Table.Cell textAlign="end" color="app.textMuted">{Math.round(calculation.targetKcal)}</Table.Cell>
             </Table.Row>
             <Table.Row bg="rgba(21, 24, 38, 0.88)">
-              <Table.Cell color="app.textMuted">Deviation (%)</Table.Cell>
+              <Table.Cell color="app.textMuted">{t("Deviation (%)")}</Table.Cell>
               <Table.Cell textAlign="end" color="app.textMuted">-</Table.Cell>
               <Table.Cell textAlign="end" color="app.textMuted">{Math.round(calculation.deviationCarbo)}</Table.Cell>
               <Table.Cell textAlign="end" color="app.textMuted">{Math.round(calculation.deviationProtein)}</Table.Cell>

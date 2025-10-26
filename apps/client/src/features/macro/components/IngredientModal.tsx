@@ -1,5 +1,6 @@
 import { Box, Input, Stack, chakra } from '@chakra-ui/react';
 import { ChangeEvent, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { IngredientModalValues } from '../types';
 import { SimpleModal } from './SimpleModal';
@@ -38,6 +39,7 @@ export function IngredientModal({
   onDelete,
   isDeleting
 }: IngredientModalProps) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<IngredientModalValues>(initialValues ?? emptyForm);
 
   useEffect(() => {
@@ -63,7 +65,7 @@ export function IngredientModal({
       <Stack gap={4}>
         <Box>
           <Label htmlFor="ingredient-name" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-            Name
+            {t("Name")}
           </Label>
           <Input
             id="ingredient-name"
@@ -78,7 +80,7 @@ export function IngredientModal({
         <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
           <Box flex="1">
             <Label htmlFor="ingredient-carbo" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-              Carbs (per 100g)
+              {t("Carbs (per 100g)")}
             </Label>
             <Input
               id="ingredient-carbo"
@@ -92,7 +94,7 @@ export function IngredientModal({
           </Box>
           <Box flex="1">
             <Label htmlFor="ingredient-protein" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-              Protein (per 100g)
+              {t("Protein (per 100g)")}
             </Label>
             <Input
               id="ingredient-protein"
@@ -106,7 +108,7 @@ export function IngredientModal({
           </Box>
           <Box flex="1">
             <Label htmlFor="ingredient-fat" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-              Fat (per 100g)
+              {t("Fat (per 100g)")}
             </Label>
             <Input
               id="ingredient-fat"
@@ -123,7 +125,7 @@ export function IngredientModal({
         <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
           <Box flex="1">
             <Label htmlFor="ingredient-min" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-              Min (g)
+              {t("Min (g)")}
             </Label>
             <Input
               id="ingredient-min"
@@ -137,7 +139,7 @@ export function IngredientModal({
           </Box>
           <Box flex="1">
             <Label htmlFor="ingredient-max" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-              Max (g)
+              {t("Max (g)")}
             </Label>
             <Input
               id="ingredient-max"
@@ -154,7 +156,7 @@ export function IngredientModal({
         <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
           <Box flex="1">
             <Label htmlFor="ingredient-mandatory" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-              Mandatory (g)
+              {t("Mandatory (g)")}
             </Label>
             <Input
               id="ingredient-mandatory"
@@ -168,7 +170,7 @@ export function IngredientModal({
           </Box>
           <Box flex="1">
             <Label htmlFor="ingredient-indivisible" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-              Indivisible (g)
+              {t("Indivisible (g)")}
             </Label>
             <Input
               id="ingredient-indivisible"

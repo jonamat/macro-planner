@@ -1,5 +1,6 @@
 import { Box, Input, Stack, chakra } from '@chakra-ui/react';
 import { ChangeEvent, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { MealModalValues } from '../types';
 import { SimpleModal } from './SimpleModal';
@@ -34,6 +35,7 @@ export function MealModal({
   onDelete,
   isDeleting
 }: MealModalProps) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<MealModalValues>(initialValues ?? emptyForm);
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export function MealModal({
       <Stack gap={4}>
         <Box>
           <Label htmlFor="meal-name" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-            Meal name
+            {t("Meal name")}
           </Label>
           <Input
             id="meal-name"
@@ -73,7 +75,7 @@ export function MealModal({
         <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
           <Box flex="1">
             <Label htmlFor="meal-carbs" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-              Carbs (g)
+              {t("Carbs (g)")}
             </Label>
             <Input
               id="meal-carbs"
@@ -87,7 +89,7 @@ export function MealModal({
           </Box>
           <Box flex="1">
             <Label htmlFor="meal-protein" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-              Protein (g)
+              {t("Protein (g)")}
             </Label>
             <Input
               id="meal-protein"
@@ -101,7 +103,7 @@ export function MealModal({
           </Box>
           <Box flex="1">
             <Label htmlFor="meal-fat" display="block" fontWeight="semibold" mb={1} color="app.textMuted">
-              Fat (g)
+              {t("Fat (g)")}
             </Label>
             <Input
               id="meal-fat"

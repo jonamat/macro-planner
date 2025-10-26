@@ -38,6 +38,7 @@ import {
 } from "../../features/macro/utils";
 import { targetFromMeal } from "../../lib/api-client";
 import type { ApiMeal } from "../../types/api";
+import { useTranslation } from "react-i18next";
 
 const Label = chakra("span");
 const StyledSelect = chakra("select");
@@ -75,6 +76,7 @@ function IngredientRow({
   onEdit: () => void;
   saving: boolean;
 }) {
+  const { t } = useTranslation();
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
   const handleChange =
@@ -126,7 +128,7 @@ function IngredientRow({
             _hover={{ bg: "rgba(94, 234, 212, 0.12)" }}
             onClick={onEdit}
           >
-            Edit
+            {t("Edit")}
           </Button>
           <Button
             variant="ghost"
@@ -136,7 +138,7 @@ function IngredientRow({
             onClick={onRemove}
             _hover={{ bg: "rgba(248, 113, 113, 0.12)" }}
           >
-            Remove
+            {t("Remove")}
           </Button>
         </Flex>
       </Flex>
@@ -145,12 +147,12 @@ function IngredientRow({
         {(["min", "max", "mandatory", "indivisible"] as const).map((field) => {
           const labelCopy =
             field === "min"
-              ? "Minimum (g)"
+              ? t("Minimum (g)")
               : field === "max"
-              ? "Maximum (g)"
+              ? t("Maximum (g)")
               : field === "mandatory"
-              ? "Mandatory (g)"
-              : "Indivisible (g)";
+              ? t("Mandatory (g)")
+              : t("Indivisible (g)");
 
           return (
             <Box key={field} position="relative">
@@ -209,7 +211,7 @@ function IngredientRow({
                   boxShadow="0 12px 24px rgba(6, 18, 22, 0.45)"
                   zIndex="tooltip"
                 >
-                  {FIELD_HELP_TEXT[field]}
+                  {t(FIELD_HELP_TEXT[field])}
                 </Box>
               )}
               <Input
@@ -238,6 +240,8 @@ function IngredientRow({
 }
 
 function MealSummary({ meal }: { meal: ApiMeal | null }) {
+  const { t } = useTranslation();
+  
   if (!meal) {
     return (
       <Box
@@ -249,7 +253,7 @@ function MealSummary({ meal }: { meal: ApiMeal | null }) {
         textAlign="center"
       >
         <Text color="app.textMuted" fontSize="sm">
-          Create a meal target to start planning.
+          {t("Create a meal target to start planning.")}
         </Text>
       </Box>
     );
@@ -286,7 +290,7 @@ function MealSummary({ meal }: { meal: ApiMeal | null }) {
           py={1}
           borderRadius="full"
         >
-          {totalKcal.toFixed(0)} kcal target
+          {totalKcal.toFixed(0)} {t("kcal target")}
         </Text>
       </Flex>
     </Box>
@@ -318,6 +322,7 @@ export default function HomePage() {
   const editMealModal = useDisclosure();
   const ingredientModal = useDisclosure();
   const editIngredientModal = useDisclosure();
+  const { t } = useTranslation();
 
   const resultsRef = useRef<HTMLDivElement | null>(null);
 
@@ -413,13 +418,13 @@ export default function HomePage() {
 
   const handleCalculate = useCallback(() => {
     if (!selectedMeal) {
-      toast.warn("Please create or select a meal to calculate.");
+      toast.warn(t("Please create or select a meal to calculate."));
       return;
     }
 
     if (!includedIngredients.length) {
       toast.warn(
-        "Please include at least one ingredient to run the optimizer."
+        t("Please include at least one ingredient to run the optimizer.")
       );
       return;
     }
@@ -475,11 +480,11 @@ export default function HomePage() {
       });
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Unable to calculate meal";
+        err instanceof Error ? err.message : t("Unable to calculate meal");
       toast.warn(message);
       setCalculation(null);
     }
-  }, [includedIngredients, selectedMeal]);
+  }, [includedIngredients, selectedMeal, t]);
 
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
@@ -559,10 +564,10 @@ export default function HomePage() {
           >
             <Stack gap={0}>
               <Text fontSize="lg" fontWeight="semibold">
-                Meal target
+                {t("Meal target")}
               </Text>
               <Text color="app.textMuted" fontSize="sm">
-                Choose the macro goal you want to optimize for.
+                {t("Choose the macro goal you want to optimize for.")}
               </Text>
             </Stack>
             <Flex gap={2} wrap="wrap">
@@ -579,7 +584,7 @@ export default function HomePage() {
                 }}
                 disabled={!selectedMeal}
               >
-                Edit meal
+                {t("Edit meal")}
               </Button>
               <Button
                 size="sm"
@@ -588,7 +593,7 @@ export default function HomePage() {
                 _hover={{ bg: "app.accentMuted" }}
                 onClick={mealModal.onOpen}
               >
-                Add meal
+                {t("Add meal")}
               </Button>
             </Flex>
           </Flex>
@@ -602,7 +607,7 @@ export default function HomePage() {
                 color="app.textMuted"
                 mr={4}
               >
-                Select meal
+                {t("Select meal")}
               </Label>
               <StyledSelect
                 mt={2}
@@ -627,8 +632,8 @@ export default function HomePage() {
                   hidden={!meals.length}
                 >
                   {meals.length
-                    ? "Select a meal target"
-                    : "Create a meal to begin"}
+                    ? t("Select a meal target")
+                    : t("Create a meal to begin")}
                 </option>
                 {meals.map((meal) => (
                   <option key={meal.id} value={meal.id}>
@@ -656,10 +661,10 @@ export default function HomePage() {
           >
             <Stack gap={0}>
               <Text fontSize="lg" fontWeight="semibold">
-                Ingredients
+                {t("Ingredients")}
               </Text>
               <Text color="app.textMuted" fontSize="sm">
-                Autocomplete ingredients and fine-tune the constraints.
+                {t("Autocomplete ingredients and fine-tune the constraints.")}
               </Text>
             </Stack>
             <Flex gap={2} wrap="wrap">
@@ -677,7 +682,7 @@ export default function HomePage() {
                 }}
                 disabled={!includedIngredients.length}
               >
-                Reset list
+                {t("Reset list")}
               </Button>
               <Button
                 size="sm"
@@ -686,14 +691,14 @@ export default function HomePage() {
                 _hover={{ bg: "app.accentMuted" }}
                 onClick={ingredientModal.onOpen}
               >
-                Add ingredient
+                {t("Add ingredient")}
               </Button>
             </Flex>
           </Flex>
 
           <Box position="relative">
             <Input
-              placeholder="Search all ingredients"
+              placeholder={t("Search all ingredients") as string}
               value={search}
               onChange={(event) => setSearch(event.currentTarget.value)}
               onKeyDown={handleSuggestionKeys}
@@ -757,8 +762,7 @@ export default function HomePage() {
                 textAlign="center"
               >
                 <Text color="app.textMuted" fontSize="sm">
-                  Include ingredients to start composing your meal. Newly added
-                  ingredients are included automatically.
+                  {t("Include ingredients to start composing your meal. Newly added ingredients are included automatically.")}
                 </Text>
               </Box>
             ) : (
@@ -795,7 +799,7 @@ export default function HomePage() {
 
         <MealModal
           open={mealModal.open}
-          title="Add meal"
+          title={t("Add meal")}
           isSubmitting={saving}
           onClose={mealModal.onClose}
           onSubmit={handleMealCreate}
@@ -803,7 +807,7 @@ export default function HomePage() {
 
         <MealModal
           open={editMealModal.open}
-          title="Edit meal"
+          title={t("Edit meal")}
           isSubmitting={saving}
           onClose={() => {
             setEditingMeal(null);
@@ -819,7 +823,7 @@ export default function HomePage() {
 
         <IngredientModal
           open={ingredientModal.open}
-          title="Add ingredient"
+          title={t("Add ingredient")}
           isSubmitting={saving}
           onClose={ingredientModal.onClose}
           onSubmit={handleIngredientCreate}
@@ -827,7 +831,7 @@ export default function HomePage() {
 
         <IngredientModal
           open={editIngredientModal.open}
-          title="Edit ingredient"
+          title={t("Edit ingredient")}
           isSubmitting={saving}
           onClose={() => {
             setEditingIngredient(null);
@@ -863,7 +867,7 @@ export default function HomePage() {
         boxShadow="0 18px 40px rgba(6, 18, 22, 0.35)"
         zIndex="tooltip"
       >
-        Calculate
+        {t("Calculate")}
       </Button>
     </>
   );

@@ -8,3 +8,5 @@ packages/*/dist
 prisma/**/*.db
 prisma/**/*/.db-journal
 tmp/
+.tsbuildinfo
+i18n-report.txt

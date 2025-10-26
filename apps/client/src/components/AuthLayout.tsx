@@ -1,11 +1,14 @@
 import { Box, Flex, Heading, Image, Stack, Text } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AuthLayoutProps {
   children: ReactNode;
 }
 
 export function AuthLayout({ children }: AuthLayoutProps) {
+  const { t } = useTranslation();
+  
   return (
     <Flex
       minH="100vh"
@@ -27,10 +30,10 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
           <Box maxW="lg">
             <Heading size="xl" fontWeight="semibold" letterSpacing="tight">
-              Macro Planner
+              {t("Macro Planner")}
             </Heading>
             <Text mt={3} fontSize={{ base: 'md', md: 'lg' }} color="whiteAlpha.700">
-              Balance macros, build meals, and stay on track across every device.
+              {t("Balance macros, build meals, and stay on track across every device.")}
             </Text>
           </Box>
         </Stack>

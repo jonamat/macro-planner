@@ -11,7 +11,7 @@ import MealsPage from './pages/MealsPage';
 import SignupPage from './pages/SignupPage';
 import InfoPage from './pages/InfoPage';
 
-function App() {
+function App() { 
   const { isAuthenticated } = useAuth();
 
   return (

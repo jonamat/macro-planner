@@ -4,7 +4,7 @@
  * If after all retries a macro deviation is still above this threshold,
  * the solver throws an error.
  */
-export const TOLERANCE = 25; // <-- adjust to your needs (percent)
+export const TOLERANCE = 25; 
 
 // ---------- Types from the prompt ----------
 export interface MacroTarget {
@@ -17,10 +17,10 @@ export interface MacroTarget {
 export type Ingredients = Array<IngredientData>;
 export interface IngredientData {
   name: string;
-  min?: number;         // base floor in grams if defined
-  max?: number;         // available grams
-  mandatory?: number;   // hard-required grams if defined
-  indivisible?: number; // if set, only use multiples of this step (e.g., 5g)
+  min?: number;
+  max?: number;
+  mandatory?: number;
+  indivisible?: number
   carbo100g: number;
   protein100g: number;
   fat100g: number;
@@ -37,14 +37,13 @@ export interface Output {
     kcal: number;
   }>;
   deviation: {
-    carbo: number;   // % deviation from target carbs
-    protein: number; // % deviation from target proteins
-    fat: number;     // % deviation from target fats
+    carbo: number;
+    protein: number
+    fat: number;
   };
 }
 
 // ---------- Internal safe index helper ----------
-/** Safe index accessor to satisfy noUncheckedIndexedAccess. Throws if out of bounds. */
 function at<T>(arr: T[], i: number): T {
   const v = arr[i];
   if (v === undefined) throw new Error(`Index ${i} out of bounds (length=${arr.length})`);
@@ -52,16 +51,6 @@ function at<T>(arr: T[], i: number): T {
 }
 
 // ---------- Solver implementation ----------
-/**
- * Optimize a meal composition to match macronutrient targets.
- *
- * Strategy (MILP/MIQP-inspired):
- * 1) Pre-allocate all "mandatory" grams (hard constraints).
- * 2) Greedy bounded-knapsack by priority (protein -> fat -> carbs).
- * 3) Discrete MIQP-like hill-climbing refinement.
- * 4) Up to 3 additional retries with shuffled order/weights if deviation > TOLLERANCE.
- * 5) If after retries some macro deviation still exceeds TOLLERANCE, throw an error.
- */
 export function optimizeMealToMacro(
   macroTarget: MacroTarget,
   ingredients: Ingredients

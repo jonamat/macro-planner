@@ -1,6 +1,7 @@
 import { Box, Button, Heading, Input, Stack, Text, chakra } from '@chakra-ui/react';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '../../providers/AuthProvider';
 
@@ -9,6 +10,7 @@ const FormEl = chakra('form');
 const LinkEl = chakra(RouterLink);
 
 export function LoginForm() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { login, loading, error, clearError } = useAuth();
 
@@ -30,7 +32,7 @@ export function LoginForm() {
     clearError();
 
     if (!username.trim() || !password) {
-      setFormError('Username and password are required');
+      setFormError(t('Username and password are required'));
       return;
     }
 
@@ -38,7 +40,7 @@ export function LoginForm() {
       await login(username, password);
       navigate('/', { replace: true });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to login';
+      const message = err instanceof Error ? err.message : t('Unable to login');
       setFormError(message);
     }
   };
@@ -57,12 +59,12 @@ export function LoginForm() {
     >
       <Stack gap={6}>
         <Heading size="lg" textAlign="center" color="white">
-          Welcome back
+          {t("Welcome back")}
         </Heading>
 
         <Box>
           <Label htmlFor="auth-username" display="block" fontWeight="semibold" mb={2} color="whiteAlpha.800">
-            Username
+            {t("Username")}
           </Label>
           <Input
             id="auth-username"
@@ -80,7 +82,7 @@ export function LoginForm() {
 
         <Box>
           <Label htmlFor="auth-password" display="block" fontWeight="semibold" mb={2} color="whiteAlpha.800">
-            Password
+            {t("Password")}
           </Label>
           <Input
             id="auth-password"
@@ -114,12 +116,12 @@ export function LoginForm() {
           loading={loading}
           w="full"
         >
-          Login
+          {t("Login")}
         </Button>
         <Text fontSize="sm" textAlign="center" color="whiteAlpha.700">
-          Need an account?{' '}
+          {t("Need an account?")}{' '}
           <LinkEl to="/signup" color="#5eead4" fontWeight="semibold">
-            Sign up
+            {t("Sign up")}
           </LinkEl>
         </Text>
       </Stack>

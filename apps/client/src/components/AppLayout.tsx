@@ -1,19 +1,23 @@
-import { Box, Button, Container, Flex, Link as ChakraLink, Stack, Text } from '@chakra-ui/react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Link as ChakraLink,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import { NavLink, Outlet } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
-import { useMacroData } from '../features/macro/MacroDataProvider';
-import { useAuth } from '../providers/AuthProvider';
-import { AppFooter } from './AppFooter';
-import 'react-toastify/dist/ReactToastify.css';
-
-const navLinks = [
-  { to: '/', label: 'Dashboard' },
-  { to: '/meals', label: 'Meals' },
-  { to: '/ingredients', label: 'Ingredients' },
-];
+import { useMacroData } from "../features/macro/MacroDataProvider";
+import { useAuth } from "../providers/AuthProvider";
+import { AppFooter } from "./AppFooter";
+import "react-toastify/dist/ReactToastify.css";
 
 export function AppLayout() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { error, clearError } = useMacroData();
 
@@ -26,13 +30,23 @@ export function AppLayout() {
     >
       <Box as="header" borderBottomWidth="1px" borderColor="whiteAlpha.100">
         <Container maxW="6xl" py={{ base: 4, md: 6 }}>
-          <Stack direction={{ base: 'column', md: 'row' }} align={{ base: 'flex-start', md: 'center' }} justify="space-between" gap={4}>
+          <Stack
+            direction={{ base: "column", md: "row" }}
+            align={{ base: "flex-start", md: "center" }}
+            justify="space-between"
+            gap={4}
+          >
             <Box>
-              <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="semibold" letterSpacing="tight">
-                Macro Planner
+              <Text
+                fontSize={{ base: "xl", md: "2xl" }}
+                fontWeight="semibold"
+                letterSpacing="tight"
+              >
+                {t("Macro Planner")}
               </Text>
               <Text fontSize="sm" color="app.textMuted">
-                Welcome back{user?.username ? `, ${user.username}` : ''}!
+                {t("Welcome back")}
+                {user?.username ? `, ${user.username}` : ""}!
               </Text>
             </Box>
 
@@ -40,12 +54,20 @@ export function AppLayout() {
               as="nav"
               gap={{ base: 2, md: 4 }}
               flexWrap="wrap"
-              justify={{ base: 'flex-start', md: 'flex-end' }}
-              w={{ base: 'full', md: 'auto' }}
-              ml={{ base: 0, md: 'auto' }}
+              justify={{ base: "flex-start", md: "flex-end" }}
+              w={{ base: "full", md: "auto" }}
+              ml={{ base: 0, md: "auto" }}
             >
-              {navLinks.map((link) => (
-                <NavLink key={link.to} to={link.to} style={{ textDecoration: 'none' }}>
+              {[
+                { to: "/", label: t("Dashboard") },
+                { to: "/meals", label: t("Meals") },
+                { to: "/ingredients", label: t("Ingredients") },
+              ].map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  style={{ textDecoration: "none" }}
+                >
                   {({ isActive }) => (
                     <ChakraLink
                       px={4}
@@ -53,12 +75,16 @@ export function AppLayout() {
                       borderRadius="full"
                       fontSize="sm"
                       fontWeight="medium"
-                      bg={isActive ? 'rgba(94, 234, 212, 0.16)' : 'transparent'}
-                      color={isActive ? '#5eead4' : 'rgba(226, 232, 240, 0.72)'}
-                      boxShadow={isActive ? '0 0 0 1px rgba(94, 234, 212, 0.25)' : undefined}
-                      _hover={{ textDecoration: 'none', bg: 'whiteAlpha.100' }}
+                      bg={isActive ? "rgba(94, 234, 212, 0.16)" : "transparent"}
+                      color={isActive ? "#5eead4" : "rgba(226, 232, 240, 0.72)"}
+                      boxShadow={
+                        isActive
+                          ? "0 0 0 1px rgba(94, 234, 212, 0.25)"
+                          : undefined
+                      }
+                      _hover={{ textDecoration: "none", bg: "whiteAlpha.100" }}
                     >
-                      {link.label}
+                      {t(link.label)}
                     </ChakraLink>
                   )}
                 </NavLink>
@@ -78,16 +104,20 @@ export function AppLayout() {
             py={4}
             color="#fca5a5"
           >
-            <Flex justify="space-between" align={{ base: 'flex-start', sm: 'center' }} gap={3}>
+            <Flex
+              justify="space-between"
+              align={{ base: "flex-start", sm: "center" }}
+              gap={3}
+            >
               <Text fontWeight="medium">{error}</Text>
               <Button
                 size="sm"
                 variant="ghost"
                 color="app.textMuted"
-                _hover={{ bg: 'whiteAlpha.100' }}
+                _hover={{ bg: "whiteAlpha.100" }}
                 onClick={clearError}
               >
-                Dismiss
+                {t("Dismiss")}
               </Button>
             </Flex>
           </Box>

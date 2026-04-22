@@ -1,14 +1,9 @@
 // ---------- Config ----------
-/**
- * Maximum allowed percentage deviation per macronutrient.
- * If after all retries a macro deviation is still above this threshold,
- * the solver throws an error.
- */
-export const TOLERANCE = 25; 
+export const DEFAULT_TOLERANCE = 20;
 
-// ---------- Types from the prompt ----------
+// ---------- Types ----------
 export interface MacroTarget {
-    name: string;
+  name: string;
   carbo: number;
   protein: number;
   fat: number;
@@ -20,7 +15,7 @@ export interface IngredientData {
   min?: number;
   max?: number;
   mandatory?: number;
-  indivisible?: number
+  indivisible?: number;
   carbo100g: number;
   protein100g: number;
   fat100g: number;
@@ -38,35 +33,35 @@ export interface Output {
   }>;
   deviation: {
     carbo: number;
-    protein: number
+    protein: number;
     fat: number;
   };
 }
 
-// ---------- Internal safe index helper ----------
+// ---------- Internal helpers ----------
 function at<T>(arr: T[], i: number): T {
   const v = arr[i];
   if (v === undefined) throw new Error(`Index ${i} out of bounds (length=${arr.length})`);
   return v;
 }
 
-// ---------- Solver implementation ----------
+// ---------- Solver ----------
 export function optimizeMealToMacro(
   macroTarget: MacroTarget,
-  ingredients: Ingredients
+  ingredients: Ingredients,
+  tolerancePct: number = DEFAULT_TOLERANCE
 ): Output {
   const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-  const nearlyEqual = (a: number, b: number, eps = 1e-6) => Math.abs(a - b) <= eps;
   const kcal = (c: number, p: number, f: number) => 4 * c + 4 * p + 9 * f;
 
-  // per-gram macro density
-  const dens = (ing: IngredientData) => ({
+  type Density = { c: number; p: number; f: number };
+  const dens = (ing: IngredientData): Density => ({
     c: ing.carbo100g / 100,
     p: ing.protein100g / 100,
     f: ing.fat100g / 100,
   });
 
-  function totals(weights: number[], AA: Array<ReturnType<typeof dens>>) {
+  function totals(weights: number[], AA: Density[]) {
     let c = 0, p = 0, f = 0;
     const m = Math.min(weights.length, AA.length);
     for (let i = 0; i < m; i++) {
@@ -80,12 +75,12 @@ export function optimizeMealToMacro(
   }
 
   function pctDev(total: number, target: number) {
-    if (target === 0) {
-      if (total === 0) return 0;
-      return total > 0 ? 100 : -100;
-    }
+    if (target === 0) return total === 0 ? 0 : total > 0 ? 100 : -100;
     return ((total - target) / target) * 100;
   }
+
+  // Priority weights: protein >> carbs > fat
+  const WP = 10, WC = 3, WF = 1;
 
   function objective(
     T: { c: number; p: number; f: number },
@@ -118,19 +113,18 @@ export function optimizeMealToMacro(
     return y;
   }
 
-  // Build per-ingredient constraints
   const n = ingredients.length;
   const steps: number[] = new Array<number>(n).fill(0);
   const lo: number[] = new Array<number>(n).fill(0);
   const hi: number[] = new Array<number>(n).fill(0);
   const baseMandatory: number[] = new Array<number>(n).fill(0);
-  const A: Array<ReturnType<typeof dens>> = ingredients.map(dens);
+  const A: Density[] = ingredients.map(dens);
 
   for (let i = 0; i < n; i++) {
     const ing = at(ingredients, i);
-    const step = ing.indivisible && ing.indivisible > 0 ? ing.indivisible : 1; // 1g grid by default
+    const step = ing.indivisible && ing.indivisible > 0 ? ing.indivisible : 1;
     const minBase = Math.max(ing.min ?? 0, 0);
-    const maxBase = Math.max(ing.max ?? Number.POSITIVE_INFINITY, 0);
+    const maxBase = ing.max != null && ing.max > 0 ? ing.max : Number.POSITIVE_INFINITY;
     const mandatory = Math.max(ing.mandatory ?? 0, 0);
 
     baseMandatory[i] = mandatory;
@@ -142,175 +136,148 @@ export function optimizeMealToMacro(
     lo[i] = residMin;
     hi[i] = residMax;
 
-    if (at(steps, i) > 0) {
-      lo[i] = roundToStep(at(lo, i), at(steps, i));
-      hi[i] = Math.floor(at(hi, i) / at(steps, i)) * at(steps, i);
-      hi[i] = Math.max(at(hi, i), at(lo, i));
+    if (step > 0) {
+      lo[i] = roundToStep(lo[i]!, step);
+      hi[i] = Math.floor(hi[i]! / step) * step;
+      hi[i] = Math.max(hi[i]!, lo[i]!);
     }
   }
 
-  // Quick infeasibility checks
+  // Infeasibility: mandatory exceeds max
   for (let i = 0; i < n; i++) {
     const ing = at(ingredients, i);
-    if ((ing.max ?? Infinity) < at(baseMandatory, i)) {
-      return emptyInfeasible(ingredients, "Mandatory grams exceed available max for " + ing.name);
+    const maxVal = ing.max != null && ing.max > 0 ? ing.max : Infinity;
+    if (maxVal < at(baseMandatory, i)) {
+      return emptyInfeasible("Mandatory grams exceed max for " + ing.name);
     }
   }
 
-  // Build initial solution: start from mandatory baseline
+  // Mandatory baseline
   const x0: number[] = baseMandatory.slice();
 
-  function buildGreedy(seedOrder: number[], target: MacroTarget) {
-    const y: number[] = new Array<number>(n).fill(0);
-
-    const T0 = totals(x0, A);
-
-    const R = {
-      c: Math.max(target.carbo - T0.c, 0),
-      p: Math.max(target.protein - T0.p, 0),
-      f: Math.max(target.fat - T0.f, 0),
+  // Compute current totals from a given allocation
+  function currentDeficits(y: number[]) {
+    const x = x0.map((b, i) => b + (y[i] ?? 0));
+    const T = totals(x, A);
+    return {
+      p: Math.max(macroTarget.protein - T.p, 0),
+      c: Math.max(macroTarget.carbo - T.c, 0),
+      f: Math.max(macroTarget.fat - T.f, 0),
     };
-
-    const proteinDensity = (i: number) => {
-      const Ai = at(A, i);
-      const d = kcal(Ai.c, Ai.p, Ai.f);
-      return Ai.p <= 0 ? -Infinity : Ai.p / Math.max(d, 1e-9);
-    };
-    const fatDensity = (i: number) => {
-      const Ai = at(A, i);
-      const d = kcal(Ai.c, Ai.p, Ai.f);
-      return Ai.f <= 0 ? -Infinity : Ai.f / Math.max(d, 1e-9);
-    };
-    const carbDensity = (i: number) => {
-      const Ai = at(A, i);
-      const d = kcal(Ai.c, Ai.p, Ai.f);
-      return Ai.c <= 0 ? -Infinity : Ai.c / Math.max(d, 1e-9);
-    };
-
-    function packToward(
-      residual: number,
-      pickScore: (i: number) => number,
-      macroPick: (i: number) => number
-    ) {
-      if (residual <= 0) return;
-      const idx = seedOrder
-        .filter(i => at(hi, i) > 0)
-        .sort((i, j) => {
-          const di = pickScore(i);
-          const dj = pickScore(j);
-          if (di === dj) return seedOrder.indexOf(i) - seedOrder.indexOf(j);
-          return dj - di;
-        });
-
-      let remain = residual;
-      for (const i of idx) {
-        if (remain <= 0) break;
-        const step = Math.max(at(steps, i), 1);
-
-        if (macroPick(i) <= 0) continue;
-
-        const cap = at(hi, i) - at(y, i);
-        if (cap <= 0) continue;
-
-        const perStepGain = macroPick(i) * step;
-        if (perStepGain <= 0) continue;
-
-        const k = Math.min(Math.floor(remain / perStepGain), Math.floor(cap / step));
-        if (k <= 0) continue;
-
-        const add = k * step;
-        y[i] = at(y, i) + add;
-        remain -= perStepGain * k;
-      }
-    }
-
-    packToward(R.p, proteinDensity, (i) => at(A, i).p);
-    packToward(R.f, fatDensity, (i) => at(A, i).f);
-    packToward(R.c, carbDensity, (i) => at(A, i).c);
-
-    const x = x0.map((b, i) => clamp(b + at(y, i), 0, (at(ingredients, i).max ?? Infinity)));
-
-    for (let i = 0; i < n; i++) {
-      x[i] =
-        projectToFeasible(
-          at(x, i) - at(baseMandatory, i),
-          at(steps, i),
-          at(lo, i),
-          at(hi, i)
-        ) + at(baseMandatory, i);
-    }
-    return x;
   }
 
+  // Pack a single macro using best-density-first, respecting remaining per-ingredient capacity
+  function packMacro(
+    y: number[],
+    deficit: number,
+    macroPick: (i: number) => number,
+    seedOrder: number[]
+  ) {
+    if (deficit <= 0) return;
+    // Sort seed order by macro density descending
+    const idx = [...seedOrder]
+      .filter(i => macroPick(i) > 0 && at(hi, i) - at(y, i) > 0)
+      .sort((a, b) => macroPick(b) - macroPick(a));
+
+    let remain = deficit;
+    for (const i of idx) {
+      if (remain <= 0) break;
+      const s = Math.max(at(steps, i), 1);
+      const cap = at(hi, i) - at(y, i);
+      if (cap <= 0) continue;
+      const perStepGain = macroPick(i) * s;
+      if (perStepGain <= 0) continue;
+      const k = Math.min(Math.ceil(remain / perStepGain), Math.floor(cap / s));
+      if (k <= 0) continue;
+      y[i] = at(y, i) + k * s;
+      remain -= perStepGain * k;
+    }
+  }
+
+  function buildGreedy(seedOrder: number[]): number[] {
+    const y: number[] = new Array<number>(n).fill(0);
+
+    // Pass 1: fill protein
+    const d0 = currentDeficits(y);
+    packMacro(y, d0.p, i => at(A, i).p, seedOrder);
+
+    // Pass 2: fill carbs (re-compute deficit after protein packing)
+    const d1 = currentDeficits(y);
+    packMacro(y, d1.c, i => at(A, i).c, seedOrder);
+
+    // Pass 3: fill fat (re-compute deficit after carb packing)
+    const d2 = currentDeficits(y);
+    packMacro(y, d2.f, i => at(A, i).f, seedOrder);
+
+    return x0.map((b, i) =>
+      projectToFeasible(at(y, i), at(steps, i), at(lo, i), at(hi, i)) + b
+    );
+  }
+
+  // Priority order: highest protein density first, then carbs, then fat
+  function priorityOrderIndices(): number[] {
+    return Array.from({ length: n }, (_, i) => i).sort((i, j) => {
+      const Ai = at(A, i), Aj = at(A, j);
+      const dp = Ai.p - Aj.p;
+      if (Math.abs(dp) > 1e-9) return dp > 0 ? -1 : 1;
+      const dc = Ai.c - Aj.c;
+      if (Math.abs(dc) > 1e-9) return dc > 0 ? -1 : 1;
+      const df = Ai.f - Aj.f;
+      if (Math.abs(df) > 1e-9) return df > 0 ? -1 : 1;
+      return 0;
+    });
+  }
+
+  // Multi-scale coordinate descent: try large steps first, progressively smaller
   function refineLocal(
     xStart: number[],
     weightsQP: { wp: number; wf: number; wc: number },
     l1: number,
-    maxIter = 4000
-  ) {
+  ): number[] {
     const x = xStart.slice();
-    const stepDirs = [1, -1];
-
-    const yLo = lo;
-    const yHi = hi;
+    const priorityOrder = priorityOrderIndices();
+    const stepScales = [50, 20, 10, 5, 2, 1];
+    const dirs = [1, -1];
 
     let T = totals(x, A);
     let bestObj = objective({ c: T.c, p: T.p, f: T.f }, macroTarget, weightsQP, l1, x);
 
-    for (let iter = 0; iter < maxIter; iter++) {
-      let improved = false;
+    for (const scale of stepScales) {
+      let improved = true;
+      let safetyIter = 0;
+      while (improved && safetyIter < 2000) {
+        improved = false;
+        safetyIter++;
 
-      const order = priorityOrderIndices(A);
+        for (const i of priorityOrder) {
+          const s = Math.max(at(steps, i), 1) * scale;
+          for (const dir of dirs) {
+            const cand = at(x, i) + dir * s;
+            const yResid = cand - at(baseMandatory, i);
+            if (yResid < at(lo, i) || yResid > at(hi, i)) continue;
 
-      for (const i of order) {
-        const s = Math.max(at(steps, i), 1);
-        for (const dir of stepDirs) {
-          const cand = at(x, i) + dir * s;
-          const yCand = cand - at(baseMandatory, i);
-          if (yCand < at(yLo, i) || yCand > at(yHi, i)) continue;
+            const old = at(x, i);
+            x[i] = cand;
+            T = totals(x, A);
+            const obj = objective({ c: T.c, p: T.p, f: T.f }, macroTarget, weightsQP, l1, x);
 
-          const old = at(x, i);
-          x[i] = cand;
-          T = totals(x, A);
-          const obj = objective({ c: T.c, p: T.p, f: T.f }, macroTarget, weightsQP, l1, x);
-
-          if (obj + 1e-9 < bestObj) {
-            bestObj = obj;
-            improved = true;
-          } else {
-            x[i] = old;
+            if (obj + 1e-9 < bestObj) {
+              bestObj = obj;
+              improved = true;
+            } else {
+              x[i] = old;
+            }
           }
         }
       }
-
-      if (!improved) break;
     }
 
     for (let i = 0; i < n; i++) {
       x[i] =
-        projectToFeasible(
-          at(x, i) - at(baseMandatory, i),
-          at(steps, i),
-          at(lo, i),
-          at(hi, i)
-        ) + at(baseMandatory, i);
+        projectToFeasible(at(x, i) - at(baseMandatory, i), at(steps, i), at(lo, i), at(hi, i)) +
+        at(baseMandatory, i);
     }
     return x;
-  }
-
-  function priorityOrderIndices(Ain: Array<ReturnType<typeof dens>>) {
-    const idx = Array.from({ length: Ain.length }, (_, i) => i);
-    return idx.sort((i, j) => {
-      const Ai = at(Ain, i);
-      const Aj = at(Ain, j);
-      const di = (Ai.p || 0) - (Aj.p || 0);
-      if (!nearlyEqual(di, 0)) return di > 0 ? -1 : 1;
-      const fi = (Ai.f || 0) - (Aj.f || 0);
-      if (!nearlyEqual(fi, 0)) return fi > 0 ? -1 : 1;
-      const ci = (Ai.c || 0) - (Aj.c || 0);
-      if (!nearlyEqual(ci, 0)) return ci > 0 ? -1 : 1;
-      return 0;
-    });
   }
 
   function buildOutput(x: number[]): Output {
@@ -331,12 +298,6 @@ export function optimizeMealToMacro(
       };
     });
 
-    const dev = {
-      carbo: round1(pctDev(t.c, macroTarget.carbo)),
-      protein: round1(pctDev(t.p, macroTarget.protein)),
-      fat: round1(pctDev(t.f, macroTarget.fat)),
-    };
-
     return {
       total: {
         carbo: round1(t.c),
@@ -345,7 +306,11 @@ export function optimizeMealToMacro(
         kcal: Math.round(t.kcal),
       },
       ingredients: outIngs.filter(row => row.weight > 0),
-      deviation: dev,
+      deviation: {
+        carbo: round1(pctDev(t.c, macroTarget.carbo)),
+        protein: round1(pctDev(t.p, macroTarget.protein)),
+        fat: round1(pctDev(t.f, macroTarget.fat)),
+      },
     };
   }
 
@@ -353,103 +318,93 @@ export function optimizeMealToMacro(
     return Math.round(v * 10) / 10;
   }
 
-  function emptyInfeasible(ings: Ingredients, _reason: string): Output {
+  function emptyInfeasible(reason: string): Output {
+    void reason;
     return {
       total: { carbo: 0, protein: 0, fat: 0, kcal: 0 },
-      ingredients: ings.map(i => ({
-        name: i.name, weight: 0, carbo: 0, protein: 0, fat: 0, kcal: 0
+      ingredients: ingredients.map(i => ({
+        name: i.name, weight: 0, carbo: 0, protein: 0, fat: 0, kcal: 0,
       })),
       deviation: { carbo: 100, protein: 100, fat: 100 },
     };
   }
 
-  // ---------- Multi-try orchestration ----------
+  function shuffle(arr: number[]) {
+    for (let k = arr.length - 1; k > 0; k--) {
+      const r = Math.floor(Math.random() * (k + 1));
+      const tmp = arr[k]!;
+      arr[k] = arr[r]!;
+      arr[r] = tmp;
+    }
+  }
+
   type TryConfig = {
     shuffle: boolean;
     weights: { wp: number; wf: number; wc: number };
     l1: number;
   };
 
+  // Six strategies: vary carb/fat weights and randomization to escape local minima
   const tries: TryConfig[] = [
-    { shuffle: false, weights: { wp: 1.0, wf: 0.25, wc: 0.10 }, l1: 1e-3 },
-    { shuffle: true,  weights: { wp: 1.0, wf: 0.35, wc: 0.12 }, l1: 2e-3 },
-    { shuffle: true,  weights: { wp: 1.0, wf: 0.30, wc: 0.20 }, l1: 2e-3 },
-    { shuffle: true,  weights: { wp: 1.0, wf: 0.30, wc: 0.15 }, l1: 5e-3 },
+    { shuffle: false, weights: { wp: WP, wc: WC,       wf: WF       }, l1: 1e-4 },
+    { shuffle: true,  weights: { wp: WP, wc: WC,       wf: WF       }, l1: 2e-4 },
+    { shuffle: true,  weights: { wp: WP, wc: WC * 1.5, wf: WF * 0.5 }, l1: 2e-4 },
+    { shuffle: true,  weights: { wp: WP, wc: WC * 0.5, wf: WF * 1.5 }, l1: 2e-4 },
+    { shuffle: true,  weights: { wp: WP, wc: WC,       wf: WF       }, l1: 1e-3 },
+    { shuffle: false, weights: { wp: WP, wc: WC * 2,   wf: WF * 2   }, l1: 5e-4 },
   ];
 
   let bestOutput: Output | null = null;
   let bestScore = Number.POSITIVE_INFINITY;
 
-  for (let attempt = 0; attempt < tries.length; attempt++) {
-    const cfg = at(tries, attempt);
-
-    // Seed order for greedy packing
+  for (const cfg of tries) {
     const seedOrder: number[] = Array.from({ length: n }, (_, i) => i);
-    if (cfg.shuffle) {
-      for (let k = seedOrder.length - 1; k > 0; k--) {
-        const r = Math.floor(Math.random() * (k + 1));
-        const tmp = seedOrder[k]!;
-        seedOrder[k] = seedOrder[r]!;
-        seedOrder[r] = tmp!;
-      }
-    }
+    if (cfg.shuffle) shuffle(seedOrder);
 
-    // Greedy build
-    const xGreedy = buildGreedy(seedOrder, macroTarget);
+    const xGreedy = buildGreedy(seedOrder);
 
-    // Light random “shake” if shuffled
+    // Light random jitter on shuffled tries
     if (cfg.shuffle) {
       for (let i = 0; i < n; i++) {
         if (at(hi, i) <= 0) continue;
         const s = Math.max(at(steps, i), 1);
         const jitter = (Math.random() < 0.3 ? 1 : 0) * (Math.random() < 0.5 ? -s : s);
-        const yCand = clamp(at(xGreedy, i) + jitter, at(baseMandatory, i) + at(lo, i), at(baseMandatory, i) + at(hi, i));
-        const snapped =
-          projectToFeasible(
-            yCand - at(baseMandatory, i),
-            at(steps, i),
-            at(lo, i),
-            at(hi, i)
-          ) + at(baseMandatory, i);
-        xGreedy[i] = snapped;
+        const yCand = clamp(
+          at(xGreedy, i) + jitter,
+          at(baseMandatory, i) + at(lo, i),
+          at(baseMandatory, i) + at(hi, i)
+        );
+        xGreedy[i] =
+          projectToFeasible(yCand - at(baseMandatory, i), at(steps, i), at(lo, i), at(hi, i)) +
+          at(baseMandatory, i);
       }
     }
 
-    // MIQP-like refinement
     const xRefined = refineLocal(xGreedy, cfg.weights, cfg.l1);
 
-    // Score and keep the best
     const Tfin = totals(xRefined, A);
-    const score = objective({ c: Tfin.c, p: Tfin.p, f: Tfin.f }, macroTarget, cfg.weights, cfg.l1, xRefined);
+    const score = objective(
+      { c: Tfin.c, p: Tfin.p, f: Tfin.f },
+      macroTarget,
+      cfg.weights,
+      cfg.l1,
+      xRefined
+    );
     const out = buildOutput(xRefined);
-
-    // Check against tolerance (per macro)
-    const exceedsTolerance =
-      Math.abs(out.deviation.carbo) > TOLERANCE ||
-      Math.abs(out.deviation.protein) > TOLERANCE ||
-      Math.abs(out.deviation.fat) > TOLERANCE;
 
     if (!bestOutput || score < bestScore) {
       bestScore = score;
       bestOutput = out;
     }
 
-    // Accept early if all deviations are within tolerance
-    if (!exceedsTolerance) {
-      return out;
-    }
-    // else continue and try next configuration
+    const withinTolerance =
+      Math.abs(out.deviation.carbo) <= tolerancePct &&
+      Math.abs(out.deviation.protein) <= tolerancePct &&
+      Math.abs(out.deviation.fat) <= tolerancePct;
+
+    if (withinTolerance) return out;
   }
 
-  // If here, every attempt exceeded tolerance; throw with the best attempt info.
-  if (bestOutput) {
-    const d = bestOutput.deviation;
-    throw new Error(
-      `Unable to meet macros within TOLLERANCE=${TOLERANCE}% with given ingredients. ` +
-      `Best deviations: protein=${d.protein}%, fat=${d.fat}%, carbs=${d.carbo}%.`
-    );
-  }
-
-  // Defensive fallback (should not be reached)
-  throw new Error(`Optimization failed with no feasible output constructed.`);
+  // Return best result found — deviations are visible in output.deviation
+  return bestOutput!;
 }

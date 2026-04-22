@@ -327,6 +327,7 @@ export default function HomePage() {
   const resultsRef = useRef<HTMLDivElement | null>(null);
 
   const [calculation, setCalculation] = useState<CalculationState | null>(null);
+  const [tolerance, setTolerance] = useState<number>(20);
   const [editingMeal, setEditingMeal] = useState<ApiMeal | null>(null);
   const [editingIngredient, setEditingIngredient] =
     useState<ClientIngredient | null>(null);
@@ -449,7 +450,7 @@ export default function HomePage() {
         };
       });
 
-      const result = optimizeMealToMacro(target, optimizerInput);
+      const result = optimizeMealToMacro(target, optimizerInput, tolerance);
 
       const totalWeight = result.ingredients.reduce(
         (sum, row) => sum + row.weight,
@@ -484,7 +485,7 @@ export default function HomePage() {
       toast.warn(message);
       setCalculation(null);
     }
-  }, [includedIngredients, selectedMeal, t]);
+  }, [includedIngredients, selectedMeal, t, tolerance]);
 
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
@@ -750,6 +751,37 @@ export default function HomePage() {
               </Box>
             )}
           </Box>
+
+          <Flex align="center" gap={3} mt={5}>
+            <Label
+              fontSize="xs"
+              textTransform="uppercase"
+              letterSpacing="0.08em"
+              color="app.textMuted"
+              whiteSpace="nowrap"
+            >
+              {t("Optimizer tolerance (%)")}
+            </Label>
+            <Input
+              type="number"
+              min={1}
+              max={100}
+              value={tolerance}
+              onChange={(e) => {
+                const v = Number(e.currentTarget.value);
+                if (v >= 1 && v <= 100) setTolerance(v);
+              }}
+              w="80px"
+              size="sm"
+              bg="app.surfaceMuted"
+              borderColor="whiteAlpha.200"
+              _focusVisible={{
+                borderColor: "app.accent",
+                boxShadow: "0 0 0 1px rgba(94, 234, 212, 0.35)",
+              }}
+              textAlign="center"
+            />
+          </Flex>
 
           <Stack mt={6} gap={4}>
             {includedIngredients.length === 0 ? (

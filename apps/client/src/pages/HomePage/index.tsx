@@ -452,6 +452,19 @@ export default function HomePage() {
 
       const result = optimizeMealToMacro(target, optimizerInput, tolerance);
 
+      const exceedsTolerance =
+        Math.abs(result.deviation.protein) > tolerance ||
+        Math.abs(result.deviation.carbo) > tolerance ||
+        Math.abs(result.deviation.fat) > tolerance;
+
+      if (exceedsTolerance) {
+        const d = result.deviation;
+        toast.warn(
+          t("Unable to meet macros within tolerance") +
+            ` (protein ${d.protein > 0 ? "+" : ""}${d.protein}%, carbs ${d.carbo > 0 ? "+" : ""}${d.carbo}%, fat ${d.fat > 0 ? "+" : ""}${d.fat}%)`
+        );
+      }
+
       const totalWeight = result.ingredients.reduce(
         (sum, row) => sum + row.weight,
         0

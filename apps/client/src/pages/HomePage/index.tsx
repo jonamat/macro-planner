@@ -325,6 +325,9 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   const resultsRef = useRef<HTMLDivElement | null>(null);
+  const undoStackRef = useRef<Array<{ id: string; wasIncluded: boolean }>>([]);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const [calculation, setCalculation] = useState<CalculationState | null>(null);
   const [tolerance, setTolerance] = useState<number>(20);
@@ -363,13 +366,33 @@ export default function HomePage() {
     });
   }, [suggestions]);
 
+  useEffect(() => {
+    if (!dropdownRef.current || highlightedIndex < 0) return;
+    const child = dropdownRef.current.children[highlightedIndex] as HTMLElement | undefined;
+    child?.scrollIntoView({ block: "nearest" });
+  }, [highlightedIndex]);
+
+  const toggleWithHistory = useCallback(
+    (id: string, value: boolean) => {
+      undoStackRef.current.push({ id, wasIncluded: !value });
+      toggleIngredientInclude(id, value);
+    },
+    [toggleIngredientInclude]
+  );
+
+  const undoLastAction = useCallback(() => {
+    const last = undoStackRef.current.pop();
+    if (!last) return;
+    toggleIngredientInclude(last.id, last.wasIncluded);
+  }, [toggleIngredientInclude]);
+
   const handleSuggestionClick = useCallback(
     (ingredientId: string) => {
-      toggleIngredientInclude(ingredientId, true);
+      toggleWithHistory(ingredientId, true);
       setSearch("");
       setHighlightedIndex(0);
     },
-    [toggleIngredientInclude]
+    [toggleWithHistory]
   );
 
   const handleSuggestionKeys = (
@@ -505,13 +528,32 @@ export default function HomePage() {
       if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
         event.preventDefault();
         handleCalculate();
+        return;
+      }
+
+      const activeEl = document.activeElement as HTMLInputElement;
+      const isAnyInput = activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA";
+      const isSearchWithNoContent = activeEl === searchInputRef.current && !activeEl.value;
+
+      if ((event.ctrlKey || event.metaKey) && event.key === "z") {
+        if (!isAnyInput || isSearchWithNoContent) {
+          event.preventDefault();
+          undoLastAction();
+        }
+        return;
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.key === "Delete" && !isAnyInput) {
+        event.preventDefault();
+        setSearch("");
+        includedIngredients.forEach((ingredient) =>
+          toggleIngredientInclude(ingredient.id, false)
+        );
       }
     };
     window.addEventListener("keydown", listener);
-    return () => {
-      window.removeEventListener("keydown", listener);
-    };
-  }, [handleCalculate]);
+    return () => window.removeEventListener("keydown", listener);
+  }, [handleCalculate, undoLastAction, includedIngredients, toggleIngredientInclude]);
 
   const handleMealCreate = async (values: MealModalValues) => {
     await createMeal(values);
@@ -712,6 +754,7 @@ export default function HomePage() {
 
           <Box position="relative">
             <Input
+              ref={searchInputRef}
               placeholder={t("Search all ingredients") as string}
               value={search}
               onChange={(event) => setSearch(event.currentTarget.value)}
@@ -725,6 +768,7 @@ export default function HomePage() {
             />
             {normalizedSearch && suggestions.length > 0 && (
               <Box
+                ref={dropdownRef}
                 position="absolute"
                 top="100%"
                 left={0}
@@ -822,7 +866,7 @@ export default function HomePage() {
                   onFieldCommit={(field, value) =>
                     commitIngredientFieldValue(ingredient.id, field, value)
                   }
-                  onRemove={() => toggleIngredientInclude(ingredient.id, false)}
+                  onRemove={() => toggleWithHistory(ingredient.id, false)}
                   onEdit={() => {
                     setEditingIngredient(ingredient);
                     editIngredientModal.onOpen();

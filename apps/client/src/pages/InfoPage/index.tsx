@@ -81,6 +81,31 @@ function InfoPage() {
             </BulletList>
           </Box>
 
+          <Box>
+            <Heading size="md" mb={3}>
+              {t("Keyboard Shortcuts")}
+            </Heading>
+            <chakra.table width="100%" color="rgba(226, 232, 240, 0.85)" fontSize="sm">
+              <chakra.tbody>
+                {[
+                  ["Ctrl / ⌘ + Enter", t("Run the optimizer.")],
+                  ["Ctrl / ⌘ + Z", t("Undo the last ingredient change (add or remove).")],
+                  ["Ctrl / ⌘ + Delete", t("Clear the entire ingredient list.")],
+                  ["↑ / ↓", t("Navigate ingredient suggestions.")],
+                  ["Enter", t("Add the highlighted suggestion.")],
+                  ["Escape", t("Clear the search field.")],
+                ].map(([keys, description]) => (
+                  <chakra.tr key={keys} borderBottom="1px solid rgba(148, 163, 184, 0.1)">
+                    <chakra.td py={2} pr={6} whiteSpace="nowrap">
+                      <code>{keys}</code>
+                    </chakra.td>
+                    <chakra.td py={2}>{description}</chakra.td>
+                  </chakra.tr>
+                ))}
+              </chakra.tbody>
+            </chakra.table>
+          </Box>
+
           <Text color="app.textMuted">
             {t("Repo available on")}{' '}
             <chakra.a
